@@ -13,12 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BookMarked, LogOut, User, Menu } from "lucide-react";
-import { useUIStore } from "@/stores/ui-store";
 
 export function AppHeader({ userEmail }: { userEmail?: string }) {
   const router = useRouter();
   const supabase = createClient();
-  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
 
   const initials = userEmail
     ? userEmail.substring(0, 2).toUpperCase()
@@ -31,38 +29,36 @@ export function AppHeader({ userEmail }: { userEmail?: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card/80 px-4 backdrop-blur-sm">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden"
-          onClick={toggleSidebar}
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        <BookMarked className="h-5 w-5 text-primary lg:hidden" />
-        <span className="text-sm font-semibold lg:hidden">Church Notes</span>
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md">
+      <div className="flex items-center gap-3 lg:hidden">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+          <BookMarked className="h-4 w-4 text-primary" />
+        </div>
+        <span className="text-sm font-bold">Church Notes</span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="hidden lg:block" />
+
+      <div className="flex items-center gap-1">
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem disabled>
-              <User className="mr-2 h-4 w-4" />
+          <DropdownMenuContent align="end" className="rounded-xl">
+            <DropdownMenuItem disabled className="text-xs">
+              <User className="mr-2 h-3.5 w-3.5" />
               {userEmail}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-2 h-3.5 w-3.5" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>

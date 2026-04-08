@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { User, Calendar } from "lucide-react";
 
 interface NoteHeaderProps {
   title: string;
@@ -21,38 +21,30 @@ export function NoteHeader({
   onDateChange,
 }: NoteHeaderProps) {
   return (
-    <div className="space-y-3 border-b border-border pb-4">
-      <div>
-        <Input
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="Sermon Title"
-          className="border-none text-xl font-bold placeholder:text-muted-foreground/50 focus-visible:ring-0 px-0 h-auto text-foreground"
-        />
-      </div>
-      <div className="flex flex-wrap gap-3">
-        <div className="flex items-center gap-2">
-          <Label htmlFor="speaker" className="text-xs text-muted-foreground whitespace-nowrap">
-            Speaker
-          </Label>
-          <Input
-            id="speaker"
+    <div className="space-y-4">
+      <input
+        value={title}
+        onChange={(e) => onTitleChange(e.target.value)}
+        placeholder="Sermon Title"
+        className="w-full bg-transparent text-2xl sm:text-3xl font-bold tracking-tight placeholder:text-muted-foreground/40 focus:outline-none text-foreground"
+      />
+      <div className="flex flex-wrap items-center gap-4 pb-4 border-b border-border">
+        <div className="flex items-center gap-2 rounded-lg bg-secondary/50 px-3 py-1.5">
+          <User className="h-3.5 w-3.5 text-muted-foreground" />
+          <input
             value={speaker}
             onChange={(e) => onSpeakerChange(e.target.value)}
-            placeholder="Pastor name"
-            className="h-8 w-40 text-sm"
+            placeholder="Speaker name"
+            className="bg-transparent text-sm placeholder:text-muted-foreground/60 focus:outline-none w-32"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="date" className="text-xs text-muted-foreground whitespace-nowrap">
-            Date
-          </Label>
-          <Input
-            id="date"
+        <div className="flex items-center gap-2 rounded-lg bg-secondary/50 px-3 py-1.5">
+          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+          <input
             type="date"
             value={date}
             onChange={(e) => onDateChange(e.target.value)}
-            className="h-8 w-40 text-sm"
+            className="bg-transparent text-sm focus:outline-none"
           />
         </div>
       </div>

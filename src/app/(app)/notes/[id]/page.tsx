@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { SermonEditor } from "@/components/editor/sermon-editor";
@@ -35,12 +35,22 @@ export default function NoteDetailPage({
   const [speaker, setSpeaker] = useState("");
   const [date, setDate] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const contentRef = useRef<Json>({});
+  const plainTextRef = useRef("");
+  const initialLoadDone = useRef(false);
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setCurrentNoteId = useEditorStore((s) => s.setCurrentNoteId);
+  const setDirty = useEditorStore((s) => s.setDirty);
+  const setSaving = useEditorStore((s) => s.setSaving);
+  const setLastSavedAt = useEditorStore((s) => s.setLastSavedAt);
 
   useEffect(() => {
     loadNote();
     setCurrentNoteId(id);
-    return () => setCurrentNoteId(null);
+    return () => {
+      setCurrentNoteId(null);
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    };
   }, [id, setCurrentNoteId]);
 
   async function loadNote() {
@@ -56,12 +66,19 @@ export default function NoteDetailPage({
       setTitle(data.title);
       setSpeaker(data.speaker || "");
       setDate(data.date.split("T")[0]);
+      contentRef.current = data.content;
+      plainTextRef.current = data.plain_text;
+      // Mark initial load done after a tick so the useEffect doesn't trigger a save
+      setTimeout(() => {
+        initialLoadDone.current = true;
+      }, 100);
     }
     setLoading(false);
   }
 
-  const handleSave = useCallback(
-    async (content: Json, plainText: string) => {
+  const save = useCallback(async () => {
+    setSaving(true);
+    try {
       const supabase = createClient();
       await supabase
         .from("sermon_notes")
@@ -69,13 +86,40 @@ export default function NoteDetailPage({
           title: title || "Untitled Sermon",
           speaker: speaker || null,
           date,
-          content,
-          plain_text: plainText,
+          content: contentRef.current,
+          plain_text: plainTextRef.current,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
+
+      setLastSavedAt(new Date());
+      setDirty(false);
+    } catch (err) {
+      console.error("Save failed:", err);
+    } finally {
+      setSaving(false);
+    }
+  }, [id, title, speaker, date, setDirty, setSaving, setLastSavedAt]);
+
+  const triggerSave = useCallback(() => {
+    if (!initialLoadDone.current) return;
+    setDirty(true);
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => save(), 500);
+  }, [save, setDirty]);
+
+  // Save on title/speaker/date change
+  useEffect(() => {
+    triggerSave();
+  }, [title, speaker, date, triggerSave]);
+
+  const handleEditorChange = useCallback(
+    (content: Json, plainText: string) => {
+      contentRef.current = content;
+      plainTextRef.current = plainText;
+      triggerSave();
     },
-    [id, title, speaker, date]
+    [triggerSave]
   );
 
   async function handleDelete() {
@@ -160,7 +204,7 @@ export default function NoteDetailPage({
 
       <SermonEditor
         initialContent={note.content}
-        onSave={handleSave}
+        onChange={handleEditorChange}
       />
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>

@@ -8,39 +8,22 @@ import UnderlineExtension from "@tiptap/extension-underline";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import { Toolbar } from "./toolbar";
-import { useEditorStore } from "@/stores/editor-store";
-import { useDebounce } from "@/hooks/use-debounce";
-import { useCallback, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { Json } from "@/types/database";
 
 interface SermonEditorProps {
   initialContent?: Json;
-  onSave: (content: Json, plainText: string) => void;
+  onChange: (content: Json, plainText: string) => void;
   readOnly?: boolean;
 }
 
 export function SermonEditor({
   initialContent,
-  onSave,
+  onChange,
   readOnly = false,
 }: SermonEditorProps) {
-  const setDirty = useEditorStore((s) => s.setDirty);
-  const setSaving = useEditorStore((s) => s.setSaving);
-  const setLastSavedAt = useEditorStore((s) => s.setLastSavedAt);
-
-  const debouncedSave = useDebounce(
-    useCallback(
-      (content: Json, plainText: string) => {
-        setSaving(true);
-        onSave(content, plainText);
-        setLastSavedAt(new Date());
-        setDirty(false);
-        setSaving(false);
-      },
-      [onSave, setSaving, setLastSavedAt, setDirty]
-    ),
-    3000
-  );
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -66,8 +49,7 @@ export function SermonEditor({
     onUpdate: ({ editor }) => {
       const json = editor.getJSON() as Json;
       const text = editor.getText();
-      setDirty(true);
-      debouncedSave(json, text);
+      onChangeRef.current(json, text);
     },
   });
 
