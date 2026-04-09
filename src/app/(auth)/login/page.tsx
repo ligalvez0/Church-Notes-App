@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BookOpen, Loader2, LogIn } from "lucide-react";
@@ -18,21 +17,29 @@ export default function LoginPage() {
 
   const supabase = createClient();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSignIn() {
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError("Invalid email or password.");
-    } else {
-      router.push("/notes");
-      router.refresh();
+      if (error) {
+        setError("Invalid email or password.");
+      } else {
+        router.push("/notes");
+        router.refresh();
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
     }
 
     setLoading(false);
@@ -58,7 +65,7 @@ export default function LoginPage() {
           <p className="text-sm text-muted-foreground mt-1">Sign in to your notes</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">Email</Label>
             <Input
@@ -67,7 +74,6 @@ export default function LoginPage() {
               placeholder="you@church.org"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
@@ -79,23 +85,21 @@ export default function LoginPage() {
               placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
               className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25"
-            style={{ background: "var(--gradient-primary)" }}
+          <button
+            onClick={handleSignIn}
             disabled={loading}
+            className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl text-base font-semibold text-white shadow-lg disabled:opacity-50"
+            style={{ background: "var(--gradient-primary)" }}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-            Sign In
-          </Button>
-        </form>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </div>
 
-        <div className="flex flex-col items-center gap-3 pt-2">
+        <div className="flex flex-col items-center gap-1 pt-2">
           <Link href="/forgot-password" className="block w-full text-center py-3 text-sm text-muted-foreground underline">
             Forgot password?
           </Link>

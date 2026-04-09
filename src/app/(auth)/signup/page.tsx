@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BookOpen, Loader2, UserPlus } from "lucide-react";
@@ -18,37 +17,49 @@ export default function SignUpPage() {
 
   const supabase = createClient();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      if (error.message.includes("already") || error.message.includes("exists")) {
-        setError("An account with this email already exists. Try signing in instead.");
-      } else {
-        setError(error.message);
-      }
-      setLoading(false);
+  async function handleSignUp() {
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
       return;
     }
 
-    // Auto sign in
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    setLoading(true);
+    setError(null);
 
-    if (!signInError) {
-      router.push("/notes");
-      router.refresh();
-    } else {
-      setError("Account created but could not sign in. Please go to sign in page.");
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (error.message.includes("already") || error.message.includes("exists")) {
+          setError("An account with this email already exists. Try signing in instead.");
+        } else {
+          setError(error.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Auto sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!signInError) {
+        router.push("/notes");
+        router.refresh();
+      } else {
+        setError("Account created! Go to sign in page to log in.");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
     }
 
     setLoading(false);
@@ -74,7 +85,7 @@ export default function SignUpPage() {
           <p className="text-sm text-muted-foreground mt-1">Start capturing sermons today</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">Email</Label>
             <Input
@@ -83,7 +94,6 @@ export default function SignUpPage() {
               placeholder="you@church.org"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
@@ -95,21 +105,19 @@ export default function SignUpPage() {
               placeholder="Create a password (6+ characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
               className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25"
-            style={{ background: "var(--gradient-primary)" }}
+          <button
+            onClick={handleSignUp}
             disabled={loading}
+            className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl text-base font-semibold text-white shadow-lg disabled:opacity-50"
+            style={{ background: "var(--gradient-primary)" }}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
-            Create Account
-          </Button>
-        </form>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+            {loading ? "Creating account..." : "Create Account"}
+          </button>
+        </div>
 
         <div className="pt-2">
           <Link href="/login" className="block w-full text-center py-3 text-sm text-primary font-medium underline">
