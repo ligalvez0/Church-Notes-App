@@ -97,10 +97,7 @@ export default function SignUpPage() {
 
         <button
           type="button"
-          onClick={() => {
-            alert("Button clicked! Email: " + email);
-            handleSignUp();
-          }}
+          onClick={handleSignUp}
           disabled={loading}
           className="w-full h-12 rounded-xl bg-primary text-white text-base font-semibold active:opacity-80 disabled:opacity-50"
         >
