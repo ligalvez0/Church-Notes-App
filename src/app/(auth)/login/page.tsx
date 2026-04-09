@@ -177,35 +177,32 @@ export default function LoginPage() {
         {/* Links */}
         <div className="flex flex-col gap-2 pt-1">
           {mode === "signin" && (
-            <Button
-              type="button"
-              variant="ghost"
-              onPointerDown={() => switchMode("forgot")}
-              className="w-full h-11 rounded-2xl text-sm text-muted-foreground"
+            <a
+              href="#forgot"
+              onClick={(e) => { e.preventDefault(); switchMode("forgot"); }}
+              className="block w-full text-center py-3 rounded-2xl text-sm text-muted-foreground active:bg-secondary/50 cursor-pointer select-none"
             >
               Forgot password?
-            </Button>
+            </a>
           )}
 
           {mode === "forgot" ? (
-            <Button
-              type="button"
-              variant="ghost"
-              onPointerDown={() => switchMode("signin")}
-              className="w-full h-11 rounded-2xl text-sm text-primary font-medium"
+            <a
+              href="#signin"
+              onClick={(e) => { e.preventDefault(); switchMode("signin"); }}
+              className="flex items-center justify-center gap-1 w-full py-3 rounded-2xl text-sm text-primary font-medium active:bg-primary/10 cursor-pointer select-none"
             >
-              <ArrowLeft className="mr-1 h-3 w-3" />
+              <ArrowLeft className="h-3 w-3" />
               Back to sign in
-            </Button>
+            </a>
           ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              onPointerDown={() => switchMode(mode === "signup" ? "signin" : "signup")}
-              className="w-full h-11 rounded-2xl text-sm text-primary font-medium"
+            <a
+              href="#toggle"
+              onClick={(e) => { e.preventDefault(); switchMode(mode === "signup" ? "signin" : "signup"); }}
+              className="block w-full text-center py-3 rounded-2xl text-sm text-primary font-medium active:bg-primary/10 cursor-pointer select-none"
             >
               {mode === "signup" ? "Already have an account? Sign in" : "Need an account? Sign up"}
-            </Button>
+            </a>
           )}
         </div>
 
