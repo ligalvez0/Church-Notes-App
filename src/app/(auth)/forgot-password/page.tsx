@@ -3,9 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { BookOpen, Loader2, KeyRound, ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -14,22 +11,29 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const supabase = createClient();
+  async function handleReset() {
+    if (!email) {
+      setError("Please enter your email.");
+      return;
+    }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
     setLoading(true);
     setError(null);
     setMessage(null);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/settings`,
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/settings`,
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setMessage("Check your email for a password reset link!");
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage("Check your email for a password reset link!");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
     }
 
     setLoading(false);
@@ -43,9 +47,7 @@ export default function ForgotPasswordPage() {
         </div>
         <div>
           <h1 className="text-4xl font-bold tracking-tight gradient-text">Church Notes</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Capture every sermon. Never miss a moment.
-          </p>
+          <p className="text-muted-foreground mt-2 text-sm">Capture every sermon. Never miss a moment.</p>
         </div>
       </div>
 
@@ -55,29 +57,28 @@ export default function ForgotPasswordPage() {
           <p className="text-sm text-muted-foreground mt-1">We&apos;ll send you a reset link</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
-            <Input
-              id="email"
+            <label className="text-sm font-medium">Email</label>
+            <input
               type="email"
               placeholder="you@church.org"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
+              className="w-full h-12 rounded-2xl border border-border/50 bg-secondary/30 px-4 text-base focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
             />
           </div>
-          <Button
-            type="submit"
-            className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25"
-            style={{ background: "var(--gradient-primary)" }}
+          <button
+            type="button"
+            onClick={handleReset}
             disabled={loading}
+            className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl text-base font-semibold text-white shadow-lg shadow-primary/25 active:opacity-80 disabled:opacity-50 transition-all"
+            style={{ background: "var(--gradient-primary)" }}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
-            Send Reset Link
-          </Button>
-        </form>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+        </div>
 
         <div className="pt-2">
           <Link href="/login" className="flex items-center justify-center gap-1 w-full py-3 text-sm text-primary font-medium underline">
