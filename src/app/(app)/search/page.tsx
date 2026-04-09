@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search, Loader2, Sparkles } from "lucide-react";
 import { NoteCard } from "@/components/notes/note-card";
 import { createClient } from "@/lib/supabase/client";
 import type { SermonNote } from "@/types/note";
@@ -24,7 +23,6 @@ export default function SearchPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Full-text search across title, plain_text, and speaker
     const { data } = await supabase
       .from("sermon_notes")
       .select("*")
@@ -40,27 +38,29 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Search</h1>
+    <div className="mx-auto max-w-3xl p-4 sm:p-6 space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight gradient-text">Search</h1>
+        <p className="text-sm text-muted-foreground mt-1">Find anything across your notes</p>
+      </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder='Search your notes... e.g. "forgiveness"'
-          className="flex-1"
-        />
-        <button
-          type="submit"
-          className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-        >
-          <Search className="h-4 w-4" />
-        </button>
+      <form onSubmit={handleSearch}>
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder='Try "forgiveness", "Romans", or a speaker name...'
+            className="w-full h-14 rounded-2xl border border-border/40 bg-card pl-12 pr-4 text-base placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
+          />
+        </div>
       </form>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="flex justify-center py-16">
+          <div className="h-10 w-10 rounded-2xl flex items-center justify-center" style={{ background: "var(--gradient-primary)" }}>
+            <Loader2 className="h-5 w-5 animate-spin text-white" />
+          </div>
         </div>
       ) : searched ? (
         results.length > 0 ? (
@@ -73,16 +73,18 @@ export default function SearchPage() {
             ))}
           </div>
         ) : (
-          <div className="py-12 text-center">
+          <div className="py-16 text-center">
             <p className="text-muted-foreground">
               No results found for &quot;{query}&quot;
             </p>
           </div>
         )
       ) : (
-        <div className="py-12 text-center text-muted-foreground">
-          <Search className="mx-auto h-8 w-8 mb-2 opacity-50" />
-          <p>Search across all your sermon notes</p>
+        <div className="py-16 text-center animate-slide-up">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl" style={{ background: "var(--gradient-primary)", opacity: 0.15 }}>
+            <Sparkles className="h-8 w-8 text-primary" />
+          </div>
+          <p className="text-muted-foreground">Search across all your sermon notes</p>
         </div>
       )}
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Loader2, BookOpen } from "lucide-react";
+import { Plus, Search, Loader2, BookOpen, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteCard } from "@/components/notes/note-card";
 import { createClient } from "@/lib/supabase/client";
@@ -65,21 +65,23 @@ export default function NotesPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl p-4 sm:p-6 space-y-6">
+    <div className="mx-auto max-w-3xl p-4 sm:p-6 space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Sermon Notes</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {notes.length} {notes.length === 1 ? "note" : "notes"}
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            <span className="gradient-text">Sermon Notes</span>
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1.5">
+            {notes.length} {notes.length === 1 ? "note" : "notes"} captured
           </p>
         </div>
         <Button
           onClick={() => router.push("/notes/new")}
-          size="lg"
-          className="rounded-xl shadow-md shadow-primary/20"
+          className="rounded-2xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
+          style={{ background: "var(--gradient-primary)" }}
         >
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="mr-1.5 h-4 w-4" />
           New Note
         </Button>
       </div>
@@ -87,19 +89,19 @@ export default function NotesPage() {
       {/* Search & Filters */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
           <input
             placeholder="Search notes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 rounded-xl border border-border bg-card pl-10 pr-4 text-sm placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="w-full h-11 rounded-2xl border border-border/40 bg-card pl-10 pr-4 text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
           />
         </div>
         {speakers.length > 0 && (
           <select
             value={speakerFilter}
             onChange={(e) => setSpeakerFilter(e.target.value)}
-            className="h-10 rounded-xl border border-border bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="h-11 rounded-2xl border border-border/40 bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <option value="">All speakers</option>
             {speakers.map((s) => (
@@ -113,18 +115,25 @@ export default function NotesPage() {
 
       {/* Notes List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="h-10 w-10 rounded-2xl flex items-center justify-center" style={{ background: "var(--gradient-primary)" }}>
+            <Loader2 className="h-5 w-5 animate-spin text-white" />
+          </div>
         </div>
       ) : filteredNotes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="rounded-2xl bg-primary/10 p-5 mb-5">
-            <BookOpen className="h-10 w-10 text-primary" />
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-slide-up">
+          <div className="relative">
+            <div className="rounded-3xl p-7 mb-6 shadow-xl shadow-primary/10" style={{ background: "var(--gradient-primary)" }}>
+              <BookOpen className="h-12 w-12 text-white" />
+            </div>
+            <div className="absolute -top-1 -right-1 rounded-full p-1.5 bg-card shadow-md">
+              <Sparkles className="h-4 w-4 text-amber-400" />
+            </div>
           </div>
-          <h3 className="text-xl font-semibold">
+          <h3 className="text-xl font-bold">
             {notes.length === 0 ? "Start your first note" : "No matching notes"}
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground max-w-sm">
+          <p className="mt-2 text-sm text-muted-foreground max-w-xs leading-relaxed">
             {notes.length === 0
               ? "Capture your next sermon with structured notes, Bible verse linking, and more."
               : "Try adjusting your search or filter."}
@@ -132,22 +141,24 @@ export default function NotesPage() {
           {notes.length === 0 && (
             <Button
               onClick={() => router.push("/notes/new")}
-              className="mt-6 rounded-xl"
+              className="mt-6 rounded-2xl shadow-lg shadow-primary/25 hover:-translate-y-0.5 transition-all"
+              style={{ background: "var(--gradient-primary)" }}
               size="lg"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Create Note
+              Create Your First Note
             </Button>
           )}
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredNotes.map((note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onToggleFavorite={handleToggleFavorite}
-            />
+          {filteredNotes.map((note, i) => (
+            <div key={note.id} className="animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
+              <NoteCard
+                note={note}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            </div>
           ))}
         </div>
       )}

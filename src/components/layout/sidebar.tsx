@@ -21,21 +21,23 @@ const navItems = [
   { href: "/search", label: "Search", icon: Search },
   { href: "/actions", label: "Actions", icon: ListTodo },
   { href: "/prayer", label: "Prayer", icon: Heart },
-  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/50">
-      <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-          <BookMarked className="h-5 w-5 text-primary" />
+    <aside className="hidden lg:flex w-64 flex-col border-r border-border/50 bg-card/50 backdrop-blur-sm">
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-3 px-6">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-lg shadow-primary/20" style={{ background: "var(--gradient-primary)" }}>
+          <BookMarked className="h-5 w-5 text-white" />
         </div>
-        <span className="text-lg font-bold tracking-tight">Church Notes</span>
+        <span className="text-lg font-bold tracking-tight gradient-text">Church Notes</span>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+
+      {/* Nav */}
+      <nav className="flex-1 space-y-1 p-3 mt-2">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -43,20 +45,34 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary/10 text-primary shadow-sm"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "text-primary-foreground shadow-lg shadow-primary/25"
+                  : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
               )}
+              style={isActive ? { background: "var(--gradient-primary)" } : undefined}
             >
-              <item.icon className={cn("h-[18px] w-[18px]", isActive && "text-primary")} />
-              {item.label}
+              <item.icon className={cn("h-[18px] w-[18px]", isActive && "text-white")} />
+              <span className={isActive ? "text-white" : ""}>{item.label}</span>
             </Link>
           );
         })}
       </nav>
-      <div className="border-t border-border p-4">
-        <p className="text-xs text-muted-foreground/60 text-center">Church Notes v1.0</p>
+
+      {/* Settings at bottom */}
+      <div className="p-3 border-t border-border/50">
+        <Link
+          href="/settings"
+          className={cn(
+            "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all",
+            pathname.startsWith("/settings")
+              ? "bg-secondary text-foreground"
+              : "text-muted-foreground hover:bg-secondary/80 hover:text-foreground"
+          )}
+        >
+          <Settings className="h-[18px] w-[18px]" />
+          Settings
+        </Link>
       </div>
     </aside>
   );

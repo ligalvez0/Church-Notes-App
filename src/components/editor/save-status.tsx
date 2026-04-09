@@ -10,7 +10,7 @@ export function SaveStatus() {
 
   if (isSaving) {
     return (
-      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground rounded-full bg-secondary/50 px-3 py-1">
         <Loader2 className="h-3 w-3 animate-spin" />
         Saving...
       </span>
@@ -19,16 +19,16 @@ export function SaveStatus() {
 
   if (isDirty) {
     return (
-      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-xs text-muted-foreground rounded-full bg-secondary/50 px-3 py-1">
         <Cloud className="h-3 w-3" />
-        Unsaved changes
+        Unsaved
       </span>
     );
   }
 
   if (lastSavedAt) {
     return (
-      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400 rounded-full bg-green-50 dark:bg-green-900/20 px-3 py-1">
         <Check className="h-3 w-3" />
         Saved
       </span>

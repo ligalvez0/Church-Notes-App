@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Send } from "lucide-react";
+import { Plus, Send, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -21,14 +21,14 @@ export function QuickCaptureButton() {
 
   return (
     <>
-      <Button
-        size="icon"
-        className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full shadow-lg lg:bottom-6"
+      <button
+        className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-2xl shadow-xl shadow-primary/30 flex items-center justify-center text-white hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all duration-300 animate-pulse-glow lg:bottom-6"
+        style={{ background: "var(--gradient-primary)" }}
         onClick={() => setOpen(true)}
       >
         <Plus className="h-6 w-6" />
         <span className="sr-only">Quick capture</span>
-      </Button>
+      </button>
 
       <QuickCaptureDialog open={open} onOpenChange={setOpen} />
     </>
@@ -73,23 +73,31 @@ function QuickCaptureDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md rounded-3xl border-border/40">
         <DialogHeader>
-          <DialogTitle>Quick Capture</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-amber-400" />
+            Quick Capture
+          </DialogTitle>
           <DialogDescription>
-            Jot down a thought quickly. You can add it to your notes later.
+            Jot down a thought quickly. Add it to your notes later.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Type your thought..."
-            className="min-h-[100px] resize-none"
+            placeholder="What's on your mind..."
+            className="min-h-[120px] resize-none rounded-2xl border-border/40 bg-secondary/30 focus:bg-background transition-colors"
             autoFocus
           />
           <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={!text.trim() || saving}>
+            <Button
+              onClick={handleSave}
+              disabled={!text.trim() || saving}
+              className="rounded-2xl shadow-md shadow-primary/20"
+              style={{ background: "var(--gradient-primary)" }}
+            >
               <Send className="mr-2 h-4 w-4" />
               {saving ? "Saving..." : "Save"}
             </Button>

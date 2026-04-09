@@ -3,72 +3,91 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
+  /* Rich indigo + warm gold palette */
+  --background: 240 20% 98%;
+  --foreground: 240 20% 8%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
+  --card-foreground: 240 20% 8%;
   --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 221 83% 53%;
-  --radius: 0.5rem;
-  --highlight: 48 96% 89%;
+  --popover-foreground: 240 20% 8%;
+  --primary: 252 80% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 245 20% 95%;
+  --secondary-foreground: 240 15% 15%;
+  --muted: 240 15% 94%;
+  --muted-foreground: 240 8% 46%;
+  --accent: 38 95% 60%;
+  --accent-foreground: 38 90% 15%;
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 10% 90%;
+  --input: 240 10% 90%;
+  --ring: 252 80% 60%;
+  --radius: 0.75rem;
+  --highlight: 38 95% 85%;
+
+  /* Gradient tokens */
+  --gradient-primary: linear-gradient(135deg, hsl(252 80% 60%), hsl(280 75% 55%));
+  --gradient-warm: linear-gradient(135deg, hsl(38 95% 60%), hsl(25 95% 55%));
+  --gradient-bg: linear-gradient(180deg, hsl(252 30% 97%), hsl(240 20% 98%));
+  --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(252 20% 99%));
+  --gradient-hero: linear-gradient(135deg, hsl(252 80% 55%), hsl(280 75% 50%), hsl(310 70% 50%));
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 5.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 5.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 217 91% 60%;
-  --highlight: 48 96% 20%;
+  --background: 240 15% 7%;
+  --foreground: 240 10% 95%;
+  --card: 240 15% 10%;
+  --card-foreground: 240 10% 95%;
+  --popover: 240 15% 10%;
+  --popover-foreground: 240 10% 95%;
+  --primary: 252 80% 65%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 12% 15%;
+  --secondary-foreground: 240 10% 90%;
+  --muted: 240 12% 15%;
+  --muted-foreground: 240 8% 55%;
+  --accent: 38 90% 55%;
+  --accent-foreground: 38 90% 95%;
+  --destructive: 0 65% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 12% 16%;
+  --input: 240 12% 16%;
+  --ring: 252 80% 65%;
+  --highlight: 38 50% 20%;
+
+  --gradient-primary: linear-gradient(135deg, hsl(252 80% 65%), hsl(280 75% 60%));
+  --gradient-warm: linear-gradient(135deg, hsl(38 90% 55%), hsl(25 90% 50%));
+  --gradient-bg: linear-gradient(180deg, hsl(240 15% 7%), hsl(250 15% 9%));
+  --gradient-card: linear-gradient(135deg, hsl(240 15% 10%), hsl(252 15% 12%));
+  --gradient-hero: linear-gradient(135deg, hsl(252 80% 40%), hsl(280 75% 35%), hsl(310 70% 35%));
 }
 
-/* Ambient mode - extra warm and dim for sanctuary use */
+/* Ambient mode - warm candlelight feel */
 .ambient {
-  --background: 30 15% 8%;
-  --foreground: 40 20% 85%;
-  --card: 30 15% 10%;
-  --card-foreground: 40 20% 85%;
-  --popover: 30 15% 10%;
-  --popover-foreground: 40 20% 85%;
-  --primary: 40 60% 55%;
-  --primary-foreground: 30 15% 8%;
-  --secondary: 30 10% 15%;
-  --secondary-foreground: 40 20% 85%;
-  --muted: 30 10% 15%;
-  --muted-foreground: 30 10% 55%;
-  --accent: 30 10% 15%;
-  --accent-foreground: 40 20% 85%;
-  --border: 30 10% 18%;
-  --input: 30 10% 18%;
-  --ring: 40 60% 55%;
-  --highlight: 40 40% 18%;
+  --background: 25 20% 8%;
+  --foreground: 35 25% 88%;
+  --card: 25 18% 11%;
+  --card-foreground: 35 25% 88%;
+  --popover: 25 18% 11%;
+  --popover-foreground: 35 25% 88%;
+  --primary: 38 80% 55%;
+  --primary-foreground: 25 20% 8%;
+  --secondary: 25 15% 15%;
+  --secondary-foreground: 35 25% 88%;
+  --muted: 25 15% 15%;
+  --muted-foreground: 25 12% 50%;
+  --accent: 38 80% 55%;
+  --accent-foreground: 25 20% 8%;
+  --border: 25 12% 18%;
+  --input: 25 12% 18%;
+  --ring: 38 80% 55%;
+  --highlight: 38 50% 18%;
+
+  --gradient-primary: linear-gradient(135deg, hsl(38 80% 50%), hsl(25 70% 45%));
+  --gradient-bg: linear-gradient(180deg, hsl(25 20% 8%), hsl(30 18% 9%));
+  --gradient-card: linear-gradient(135deg, hsl(25 18% 11%), hsl(30 15% 13%));
+  --gradient-hero: linear-gradient(135deg, hsl(38 70% 35%), hsl(25 60% 30%));
 }
 
 @theme inline {
@@ -101,9 +120,21 @@
 }
 
 body {
-  background: hsl(var(--background));
+  background: var(--gradient-bg);
   color: hsl(var(--foreground));
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
 }
 
 /* Tiptap editor styles */
@@ -113,40 +144,50 @@ body {
 }
 
 .tiptap p {
-  margin: 0.25em 0;
+  margin: 0.4em 0;
+  line-height: 1.75;
 }
 
 .tiptap h1,
 .tiptap h2,
 .tiptap h3 {
   font-weight: 700;
-  margin: 0.75em 0 0.25em;
+  margin: 1em 0 0.4em;
+  line-height: 1.3;
 }
 
-.tiptap h1 { font-size: 1.5em; }
-.tiptap h2 { font-size: 1.25em; }
+.tiptap h1 { font-size: 1.6em; }
+.tiptap h2 { font-size: 1.3em; color: hsl(var(--primary)); }
 .tiptap h3 { font-size: 1.1em; }
 
 .tiptap ul,
 .tiptap ol {
   padding-left: 1.5em;
-  margin: 0.25em 0;
+  margin: 0.4em 0;
 }
 
 .tiptap ul { list-style-type: disc; }
 .tiptap ol { list-style-type: decimal; }
 
+.tiptap li {
+  line-height: 1.75;
+}
+
 .tiptap mark {
-  background-color: hsl(var(--highlight));
-  border-radius: 2px;
-  padding: 0 2px;
+  background: var(--gradient-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 600;
+  padding: 0;
 }
 
 .tiptap blockquote {
-  border-left: 3px solid hsl(var(--border));
+  border-left: 3px solid hsl(var(--primary));
   padding-left: 1em;
-  margin: 0.5em 0;
+  margin: 0.75em 0;
   color: hsl(var(--muted-foreground));
+  font-style: italic;
 }
 
 .tiptap ul[data-type="taskList"] {
@@ -162,12 +203,19 @@ body {
 
 .tiptap ul[data-type="taskList"] li > label {
   flex-shrink: 0;
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.tiptap ul[data-type="taskList"] li > label input[type="checkbox"] {
+  accent-color: hsl(var(--primary));
+  width: 16px;
+  height: 16px;
 }
 
 .tiptap .bible-verse-embed {
-  background: hsl(var(--secondary));
+  background: var(--gradient-card);
   border: 1px solid hsl(var(--border));
+  border-left: 3px solid hsl(var(--accent));
   border-radius: var(--radius);
   padding: 0.75rem 1rem;
   margin: 0.5rem 0;
@@ -183,18 +231,77 @@ body {
   margin-top: 0.25rem;
 }
 
-.tiptap .main-point {
-  background: hsl(var(--accent));
-  border-left: 3px solid hsl(var(--primary));
-  padding: 0.5rem 1rem;
-  margin: 0.5rem 0;
-  border-radius: 0 var(--radius) var(--radius) 0;
-}
-
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
   color: hsl(var(--muted-foreground));
   pointer-events: none;
   height: 0;
+  opacity: 0.5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsla(var(--primary), 0.3); }
+  50% { box-shadow: 0 0 0 8px hsla(var(--primary), 0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Glass effect utility */
+.glass {
+  background: hsla(var(--card), 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gradient border utility */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-primary);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }

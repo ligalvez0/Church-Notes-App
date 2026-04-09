@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Mail, Loader2 } from "lucide-react";
+import { BookOpen, Mail, Loader2, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -52,20 +52,20 @@ export default function LoginPage() {
   return (
     <div className="space-y-8">
       {/* Logo & Branding */}
-      <div className="text-center space-y-4">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 shadow-lg shadow-primary/5">
-          <BookOpen className="h-10 w-10 text-primary" />
+      <div className="text-center space-y-5">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl shadow-2xl shadow-primary/30 animate-pulse-glow" style={{ background: "var(--gradient-hero)" }}>
+          <BookOpen className="h-10 w-10 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Church Notes</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-4xl font-bold tracking-tight gradient-text">Church Notes</h1>
+          <p className="text-muted-foreground mt-2 text-sm">
             Capture every sermon. Never miss a moment.
           </p>
         </div>
       </div>
 
-      {/* Sign In Form */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-xl shadow-black/5 space-y-5">
+      {/* Sign In Card */}
+      <div className="rounded-3xl border border-border/50 bg-card/80 backdrop-blur-xl p-7 shadow-2xl shadow-black/5 space-y-5">
         <form onSubmit={handleMagicLink} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
@@ -76,14 +76,19 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-12 rounded-xl text-base"
+              className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
-          <Button type="submit" className="w-full h-12 rounded-xl text-base font-semibold shadow-md shadow-primary/20" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
+            style={{ background: "var(--gradient-primary)" }}
+            disabled={loading}
+          >
             {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Mail className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-2 h-4 w-4" />
             )}
             Sign in with Magic Link
           </Button>
@@ -91,14 +96,14 @@ export default function LoginPage() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
+            <span className="w-full border-t border-border/50" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-3 text-muted-foreground">Or</span>
+            <span className="bg-card/80 px-3 text-muted-foreground">Or</span>
           </div>
         </div>
 
-        <Button variant="outline" className="w-full h-12 rounded-xl text-base" onClick={handleGoogleLogin}>
+        <Button variant="outline" className="w-full h-12 rounded-2xl text-base border-border/50 hover:bg-secondary/50 transition-all" onClick={handleGoogleLogin}>
           <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -109,19 +114,19 @@ export default function LoginPage() {
         </Button>
 
         {message && (
-          <div className="rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 text-center text-sm text-green-700 dark:text-green-400">
+          <div className="rounded-2xl bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/50 p-4 text-center text-sm text-green-700 dark:text-green-400 animate-fade-in">
             {message}
           </div>
         )}
 
         {error && (
-          <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-center text-sm text-destructive">
+          <div className="rounded-2xl bg-destructive/10 border border-destructive/20 p-4 text-center text-sm text-destructive animate-fade-in">
             {error}
           </div>
         )}
       </div>
 
-      <p className="text-center text-xs text-muted-foreground/60">
+      <p className="text-center text-xs text-muted-foreground/50">
         By signing in, you agree to take better sermon notes.
       </p>
     </div>
