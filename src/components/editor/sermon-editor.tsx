@@ -7,8 +7,11 @@ import Placeholder from "@tiptap/extension-placeholder";
 import UnderlineExtension from "@tiptap/extension-underline";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
+import { BibleVerseNode, BibleAutoDetect } from "./extensions";
 import { Toolbar } from "./toolbar";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import { useEditorStore } from "@/stores/editor-store";
+import { createClient } from "@/lib/supabase/client";
 import type { Json } from "@/types/database";
 
 interface SermonEditorProps {
@@ -25,6 +28,51 @@ export function SermonEditor({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
+  const currentNoteId = useEditorStore((s) => s.currentNoteId);
+  const currentNoteIdRef = useRef(currentNoteId);
+  currentNoteIdRef.current = currentNoteId;
+
+  /** Save a scripture reference to Supabase when a verse is embedded. */
+  const handleVerseEmbedded = useCallback(
+    async (verse: {
+      reference: string;
+      text: string;
+      translation: string;
+      book: string;
+      chapter: number;
+      verseStart: number;
+      verseEnd: number | null;
+    }) => {
+      const noteId = currentNoteIdRef.current;
+      if (!noteId) return;
+
+      try {
+        const supabase = createClient();
+        await supabase.from("scripture_references").upsert(
+          {
+            note_id: noteId,
+            book: verse.book,
+            chapter: verse.chapter,
+            verse_start: verse.verseStart,
+            verse_end: verse.verseEnd,
+            translation: verse.translation,
+            full_text: verse.text,
+          },
+          {
+            onConflict: "note_id,book,chapter,verse_start",
+            ignoreDuplicates: true,
+          }
+        );
+      } catch (err) {
+        console.error("Failed to save scripture reference:", err);
+      }
+    },
+    []
+  );
+
+  const handleVerseEmbeddedRef = useRef(handleVerseEmbedded);
+  handleVerseEmbeddedRef.current = handleVerseEmbedded;
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -38,6 +86,12 @@ export function SermonEditor({
       UnderlineExtension,
       TaskList,
       TaskItem.configure({ nested: true }),
+      BibleVerseNode,
+      BibleAutoDetect.configure({
+        onVerseEmbedded: (verse) => {
+          handleVerseEmbeddedRef.current(verse);
+        },
+      }),
     ],
     content: initialContent as Record<string, unknown> | undefined,
     editable: !readOnly,
