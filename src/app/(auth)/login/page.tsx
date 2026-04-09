@@ -175,34 +175,37 @@ export default function LoginPage() {
         </form>
 
         {/* Links */}
-        <div className="flex flex-col items-center gap-3 pt-1">
+        <div className="flex flex-col gap-2 pt-1">
           {mode === "signin" && (
-            <button
+            <Button
               type="button"
-              onClick={() => switchMode("forgot")}
-              className="text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors py-2 px-4 rounded-xl active:bg-secondary/50"
+              variant="ghost"
+              onPointerDown={() => switchMode("forgot")}
+              className="w-full h-11 rounded-2xl text-sm text-muted-foreground"
             >
               Forgot password?
-            </button>
+            </Button>
           )}
 
           {mode === "forgot" ? (
-            <button
+            <Button
               type="button"
-              onClick={() => switchMode("signin")}
-              className="text-sm text-primary font-medium flex items-center gap-1 py-2 px-4 rounded-xl active:bg-primary/10"
+              variant="ghost"
+              onPointerDown={() => switchMode("signin")}
+              className="w-full h-11 rounded-2xl text-sm text-primary font-medium"
             >
-              <ArrowLeft className="h-3 w-3" />
+              <ArrowLeft className="mr-1 h-3 w-3" />
               Back to sign in
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="button"
-              onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
-              className="text-sm text-primary font-medium py-2 px-4 rounded-xl active:bg-primary/10"
+              variant="ghost"
+              onPointerDown={() => switchMode(mode === "signup" ? "signin" : "signup")}
+              className="w-full h-11 rounded-2xl text-sm text-primary font-medium"
             >
               {mode === "signup" ? "Already have an account? Sign in" : "Need an account? Sign up"}
-            </button>
+            </Button>
           )}
         </div>
 
