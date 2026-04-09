@@ -7,9 +7,9 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Loader2, LogIn } from "lucide-react";
+import { BookOpen, Loader2, UserPlus } from "lucide-react";
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,16 +23,32 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
-      setError("Invalid email or password.");
-    } else {
+      if (error.message.includes("already") || error.message.includes("exists")) {
+        setError("An account with this email already exists. Try signing in instead.");
+      } else {
+        setError(error.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    // Auto sign in
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (!signInError) {
       router.push("/notes");
       router.refresh();
+    } else {
+      setError("Account created but could not sign in. Please go to sign in page.");
     }
 
     setLoading(false);
@@ -54,8 +70,8 @@ export default function LoginPage() {
 
       <div className="rounded-3xl border border-border/50 bg-card/80 backdrop-blur-xl p-7 shadow-2xl shadow-black/5 space-y-5">
         <div className="text-center">
-          <h2 className="text-lg font-semibold">Welcome back</h2>
-          <p className="text-sm text-muted-foreground mt-1">Sign in to your notes</p>
+          <h2 className="text-lg font-semibold">Create your account</h2>
+          <p className="text-sm text-muted-foreground mt-1">Start capturing sermons today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,7 +92,7 @@ export default function LoginPage() {
             <Input
               id="password"
               type="password"
-              placeholder="Your password"
+              placeholder="Create a password (6+ characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -90,17 +106,14 @@ export default function LoginPage() {
             style={{ background: "var(--gradient-primary)" }}
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-            Sign In
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+            Create Account
           </Button>
         </form>
 
-        <div className="flex flex-col items-center gap-3 pt-2">
-          <Link href="/forgot-password" className="block w-full text-center py-3 text-sm text-muted-foreground underline">
-            Forgot password?
-          </Link>
-          <Link href="/signup" className="block w-full text-center py-3 text-sm text-primary font-medium underline">
-            Need an account? Sign up
+        <div className="pt-2">
+          <Link href="/login" className="block w-full text-center py-3 text-sm text-primary font-medium underline">
+            Already have an account? Sign in
           </Link>
         </div>
 

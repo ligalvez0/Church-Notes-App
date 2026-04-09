@@ -1,19 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Loader2, LogIn } from "lucide-react";
+import { BookOpen, Loader2, KeyRound, ArrowLeft } from "lucide-react";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -22,17 +20,16 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessage(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/settings`,
     });
 
     if (error) {
-      setError("Invalid email or password.");
+      setError(error.message);
     } else {
-      router.push("/notes");
-      router.refresh();
+      setMessage("Check your email for a password reset link!");
     }
 
     setLoading(false);
@@ -54,8 +51,8 @@ export default function LoginPage() {
 
       <div className="rounded-3xl border border-border/50 bg-card/80 backdrop-blur-xl p-7 shadow-2xl shadow-black/5 space-y-5">
         <div className="text-center">
-          <h2 className="text-lg font-semibold">Welcome back</h2>
-          <p className="text-sm text-muted-foreground mt-1">Sign in to your notes</p>
+          <h2 className="text-lg font-semibold">Reset password</h2>
+          <p className="text-sm text-muted-foreground mt-1">We&apos;ll send you a reset link</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,38 +68,29 @@ export default function LoginPage() {
               className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
-            />
-          </div>
           <Button
             type="submit"
             className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25"
             style={{ background: "var(--gradient-primary)" }}
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
-            Sign In
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}
+            Send Reset Link
           </Button>
         </form>
 
-        <div className="flex flex-col items-center gap-3 pt-2">
-          <Link href="/forgot-password" className="block w-full text-center py-3 text-sm text-muted-foreground underline">
-            Forgot password?
-          </Link>
-          <Link href="/signup" className="block w-full text-center py-3 text-sm text-primary font-medium underline">
-            Need an account? Sign up
+        <div className="pt-2">
+          <Link href="/login" className="flex items-center justify-center gap-1 w-full py-3 text-sm text-primary font-medium underline">
+            <ArrowLeft className="h-3 w-3" />
+            Back to sign in
           </Link>
         </div>
+
+        {message && (
+          <div className="rounded-2xl bg-green-50 dark:bg-green-900/20 border border-green-200/50 dark:border-green-800/50 p-4 text-center text-sm text-green-700 dark:text-green-400 animate-fade-in">
+            {message}
+          </div>
+        )}
 
         {error && (
           <div className="rounded-2xl bg-destructive/10 border border-destructive/20 p-4 text-center text-sm text-destructive animate-fade-in">
