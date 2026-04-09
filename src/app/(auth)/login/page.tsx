@@ -175,12 +175,12 @@ export default function LoginPage() {
         </form>
 
         {/* Links */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-3 pt-1">
           {mode === "signin" && (
             <button
               type="button"
               onClick={() => switchMode("forgot")}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              className="text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors py-2 px-4 rounded-xl active:bg-secondary/50"
             >
               Forgot password?
             </button>
@@ -190,7 +190,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => switchMode("signin")}
-              className="text-sm text-primary hover:underline font-medium flex items-center gap-1"
+              className="text-sm text-primary font-medium flex items-center gap-1 py-2 px-4 rounded-xl active:bg-primary/10"
             >
               <ArrowLeft className="h-3 w-3" />
               Back to sign in
@@ -199,7 +199,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
-              className="text-sm text-primary hover:underline font-medium"
+              className="text-sm text-primary font-medium py-2 px-4 rounded-xl active:bg-primary/10"
             >
               {mode === "signup" ? "Already have an account? Sign in" : "Need an account? Sign up"}
             </button>
