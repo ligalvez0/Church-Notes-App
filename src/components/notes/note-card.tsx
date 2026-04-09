@@ -53,7 +53,7 @@ export function NoteCard({ note, onToggleFavorite }: NoteCardProps) {
               {formatDateShort(note.date)}
             </span>
             {note.speaker && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/8 px-2.5 py-0.5 text-[11px] font-medium text-primary/80">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-medium text-primary">
                 <User className="h-3 w-3" />
                 {note.speaker}
               </span>
