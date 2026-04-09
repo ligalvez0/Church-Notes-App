@@ -2,41 +2,57 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Loader2, BookOpen, Sparkles } from "lucide-react";
+import { Plus, Search, Loader2, BookOpen, Sparkles, Zap, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteCard } from "@/components/notes/note-card";
 import { createClient } from "@/lib/supabase/client";
-import type { SermonNote } from "@/types/note";
+import { formatDateShort } from "@/lib/utils";
+import type { SermonNote, QuickCapture } from "@/types/note";
 
 export default function NotesPage() {
   const router = useRouter();
   const [notes, setNotes] = useState<SermonNote[]>([]);
+  const [captures, setCaptures] = useState<QuickCapture[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [speakerFilter, setSpeakerFilter] = useState("");
   const [speakers, setSpeakers] = useState<string[]>([]);
 
   useEffect(() => {
-    loadNotes();
+    loadData();
   }, []);
 
-  async function loadNotes() {
+  async function loadData() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data } = await supabase
-      .from("sermon_notes")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("is_archived", false)
-      .order("date", { ascending: false });
+    // Load notes and captures in parallel
+    const [notesRes, capturesRes] = await Promise.all([
+      supabase
+        .from("sermon_notes")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_archived", false)
+        .order("date", { ascending: false }),
+      supabase
+        .from("quick_captures")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_processed", false)
+        .order("created_at", { ascending: false }),
+    ]);
 
-    if (data) {
-      setNotes(data);
-      const uniqueSpeakers = [...new Set(data.map((n) => n.speaker).filter(Boolean))] as string[];
+    if (notesRes.data) {
+      setNotes(notesRes.data);
+      const uniqueSpeakers = [...new Set(notesRes.data.map((n) => n.speaker).filter(Boolean))] as string[];
       setSpeakers(uniqueSpeakers);
     }
+
+    if (capturesRes.data) {
+      setCaptures(capturesRes.data);
+    }
+
     setLoading(false);
   }
 
@@ -50,6 +66,21 @@ export default function NotesPage() {
     setNotes((prev) =>
       prev.map((n) => (n.id === id ? { ...n, is_favorite: !current } : n))
     );
+  }
+
+  async function handleDeleteCapture(id: string) {
+    const supabase = createClient();
+    await supabase.from("quick_captures").delete().eq("id", id);
+    setCaptures((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  async function handleDismissCapture(id: string) {
+    const supabase = createClient();
+    await supabase
+      .from("quick_captures")
+      .update({ is_processed: true })
+      .eq("id", id);
+    setCaptures((prev) => prev.filter((c) => c.id !== id));
   }
 
   const filteredNotes = notes.filter((note) => {
@@ -85,6 +116,49 @@ export default function NotesPage() {
           New Note
         </Button>
       </div>
+
+      {/* Quick Captures Section */}
+      {captures.length > 0 && (
+        <div className="space-y-3 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: "var(--gradient-warm)" }}>
+              <Zap className="h-3.5 w-3.5 text-white" />
+            </div>
+            <h2 className="text-sm font-semibold">Quick Captures</h2>
+            <span className="text-xs text-muted-foreground">({captures.length})</span>
+          </div>
+          <div className="space-y-2">
+            {captures.map((capture) => (
+              <div
+                key={capture.id}
+                className="group relative rounded-2xl border border-amber-200/50 dark:border-amber-800/30 bg-amber-50/50 dark:bg-amber-900/10 p-4 transition-all"
+              >
+                <p className="text-sm pr-8 leading-relaxed">{capture.text}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    {formatDateShort(capture.created_at)}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleDismissCapture(capture.id)}
+                      className="text-[11px] text-muted-foreground hover:text-foreground px-2 py-1 rounded-lg hover:bg-secondary/50 transition-colors"
+                    >
+                      Dismiss
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCapture(capture.id)}
+                      className="p-1 rounded-lg text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Search & Filters */}
       <div className="flex gap-2">
