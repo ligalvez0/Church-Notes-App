@@ -23,36 +23,42 @@ export default function NotesPage() {
   }, []);
 
   async function loadData() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-    // Load notes and captures in parallel
-    const [notesRes, capturesRes] = await Promise.all([
-      supabase
-        .from("sermon_notes")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_archived", false)
-        .order("date", { ascending: false }),
-      supabase
-        .from("quick_captures")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_processed", false)
-        .order("created_at", { ascending: false }),
-    ]);
+      // Load notes and captures in parallel
+      const [notesRes, capturesRes] = await Promise.all([
+        supabase
+          .from("sermon_notes")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("is_archived", false)
+          .order("date", { ascending: false }),
+        supabase
+          .from("quick_captures")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("is_processed", false)
+          .order("created_at", { ascending: false }),
+      ]);
 
-    if (notesRes.data) {
-      setNotes(notesRes.data);
-      const uniqueSpeakers = [...new Set(notesRes.data.map((n) => n.speaker).filter(Boolean))] as string[];
-      setSpeakers(uniqueSpeakers);
+      if (notesRes.data) {
+        setNotes(notesRes.data);
+        const uniqueSpeakers = [...new Set(notesRes.data.map((n) => n.speaker).filter(Boolean))] as string[];
+        setSpeakers(uniqueSpeakers);
+      }
+
+      if (capturesRes.data) {
+        setCaptures(capturesRes.data);
+      }
+    } catch (err) {
+      console.error("Failed to load data:", err);
     }
-
-    if (capturesRes.data) {
-      setCaptures(capturesRes.data);
-    }
-
     setLoading(false);
   }
 
