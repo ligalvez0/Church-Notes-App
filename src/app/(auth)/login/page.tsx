@@ -6,18 +6,26 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Loader2, Sparkles, LogIn, UserPlus } from "lucide-react";
+import { BookOpen, Loader2, LogIn, UserPlus, KeyRound, ArrowLeft } from "lucide-react";
+
+type Mode = "signin" | "signup" | "forgot";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<Mode>("signin");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient();
+
+  function switchMode(newMode: Mode) {
+    setMode(newMode);
+    setError(null);
+    setMessage(null);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,29 +33,52 @@ export default function LoginPage() {
     setError(null);
     setMessage(null);
 
-    if (isSignUp) {
-      // Sign up with email + password
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/settings`,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage("Check your email for a password reset link!");
+      }
+      setLoading(false);
+      return;
+    }
+
+    if (mode === "signup") {
       const { error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
-        setError(error.message);
-      } else {
-        setMessage("Account created! Signing you in...");
-        // Auto sign in after sign up
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (!signInError) {
-          router.push("/notes");
-          router.refresh();
+        // If user already exists, tell them to sign in or reset password
+        if (error.message.includes("already") || error.message.includes("exists")) {
+          setError("An account with this email already exists. Try signing in, or use Forgot Password to set a new password.");
+        } else {
+          setError(error.message);
         }
+        setLoading(false);
+        return;
+      }
+
+      // Auto sign in after sign up
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!signInError) {
+        router.push("/notes");
+        router.refresh();
+      } else {
+        setMessage("Account created! You can now sign in.");
+        setMode("signin");
       }
     } else {
-      // Sign in with email + password
+      // Sign in
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -55,7 +86,7 @@ export default function LoginPage() {
 
       if (error) {
         if (error.message === "Invalid login credentials") {
-          setError("Invalid email or password. Need an account? Click Sign Up below.");
+          setError("Invalid email or password. Try Forgot Password if you signed up with a magic link before.");
         } else {
           setError(error.message);
         }
@@ -87,10 +118,10 @@ export default function LoginPage() {
       <div className="rounded-3xl border border-border/50 bg-card/80 backdrop-blur-xl p-7 shadow-2xl shadow-black/5 space-y-5">
         <div className="text-center">
           <h2 className="text-lg font-semibold">
-            {isSignUp ? "Create your account" : "Welcome back"}
+            {mode === "signup" ? "Create your account" : mode === "forgot" ? "Reset password" : "Welcome back"}
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {isSignUp ? "Start capturing sermons today" : "Sign in to your notes"}
+            {mode === "signup" ? "Start capturing sermons today" : mode === "forgot" ? "We'll send you a reset link" : "Sign in to your notes"}
           </p>
         </div>
 
@@ -107,19 +138,23 @@ export default function LoginPage() {
               className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder={isSignUp ? "Create a password (6+ characters)" : "Your password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
-            />
-          </div>
+
+          {mode !== "forgot" && (
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder={mode === "signup" ? "Create a password (6+ characters)" : "Your password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="h-12 rounded-2xl text-base border-border/50 bg-secondary/30 focus:bg-background transition-colors"
+              />
+            </div>
+          )}
+
           <Button
             type="submit"
             className="w-full h-12 rounded-2xl text-base font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
@@ -128,27 +163,47 @@ export default function LoginPage() {
           >
             {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : isSignUp ? (
+            ) : mode === "signup" ? (
               <UserPlus className="mr-2 h-4 w-4" />
+            ) : mode === "forgot" ? (
+              <KeyRound className="mr-2 h-4 w-4" />
             ) : (
               <LogIn className="mr-2 h-4 w-4" />
             )}
-            {isSignUp ? "Create Account" : "Sign In"}
+            {mode === "signup" ? "Create Account" : mode === "forgot" ? "Send Reset Link" : "Sign In"}
           </Button>
         </form>
 
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError(null);
-              setMessage(null);
-            }}
-            className="text-sm text-primary hover:underline font-medium"
-          >
-            {isSignUp ? "Already have an account? Sign in" : "Need an account? Sign up"}
-          </button>
+        {/* Links */}
+        <div className="flex flex-col items-center gap-2">
+          {mode === "signin" && (
+            <button
+              type="button"
+              onClick={() => switchMode("forgot")}
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              Forgot password?
+            </button>
+          )}
+
+          {mode === "forgot" ? (
+            <button
+              type="button"
+              onClick={() => switchMode("signin")}
+              className="text-sm text-primary hover:underline font-medium flex items-center gap-1"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Back to sign in
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
+              className="text-sm text-primary hover:underline font-medium"
+            >
+              {mode === "signup" ? "Already have an account? Sign in" : "Need an account? Sign up"}
+            </button>
+          )}
         </div>
 
         {message && (
