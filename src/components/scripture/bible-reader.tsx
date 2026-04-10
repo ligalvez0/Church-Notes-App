@@ -68,6 +68,7 @@ export function BibleReader() {
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [translation, setTranslation] = useState<Translation>("kjv");
   const [verses, setVerses] = useState<ChapterVerse[]>([]);
+  const [headings, setHeadings] = useState<{ verse: number; heading: string }[]>([]);
   const [chapterRef, setChapterRef] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +80,7 @@ export function BibleReader() {
     async (book: string, chapter: number, trans: Translation) => {
       setLoading(true);
       setError(null);
+      setHeadings([]);
       try {
         const params = new URLSearchParams({
           book,
@@ -90,6 +92,30 @@ export function BibleReader() {
         const data: ChapterResponse = await res.json();
         setVerses(data.verses);
         setChapterRef(data.reference);
+
+        // Check for manual headings first
+        const key = `${book} ${chapter}`;
+        if (SECTION_HEADINGS[key]) {
+          setHeadings(SECTION_HEADINGS[key]);
+        } else {
+          // Fetch AI-generated headings
+          const versesText = data.verses
+            .map((v) => `${v.verse}. ${v.text}`)
+            .join("\n");
+          const hParams = new URLSearchParams({
+            book,
+            chapter: String(chapter),
+            verses: versesText,
+          });
+          fetch(`/api/ai/headings?${hParams}`)
+            .then((r) => r.json())
+            .then((h) => {
+              if (h.headings && h.headings.length > 0) {
+                setHeadings(h.headings);
+              }
+            })
+            .catch(() => {});
+        }
       } catch {
         setError("Could not load this chapter. Please try again.");
         setVerses([]);
@@ -142,10 +168,6 @@ export function BibleReader() {
     selectedChapter < maxChapters ||
     BIBLE_BOOKS.findIndex((b) => b.name === selectedBook) <
       BIBLE_BOOKS.length - 1;
-
-  // Get section headings for current chapter
-  const chapterKey = `${selectedBook} ${selectedChapter}`;
-  const headings = SECTION_HEADINGS[chapterKey] || [];
 
   // Build verse groups with section headings inserted
   function buildVerseElements() {
