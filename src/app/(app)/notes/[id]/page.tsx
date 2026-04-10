@@ -257,7 +257,7 @@ export default function NoteDetailPage({
               <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
                 <Sparkles className="h-3.5 w-3.5 text-white" />
               </div>
-              <h3 className="text-sm font-semibold">AI Summary</h3>
+              <h3 className="text-sm font-semibold">Summary</h3>
             </div>
 
             <div className="rounded-2xl border border-border/40 bg-card p-4 space-y-4">
