@@ -8,6 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { BIBLE_BOOKS } from "@/lib/bible-data";
+import { SECTION_HEADINGS } from "@/lib/bible-headings";
 import type { ChapterVerse, ChapterResponse } from "@/types/bible";
 
 type Translation = "kjv" | "asv" | "web";
@@ -142,7 +143,60 @@ export function BibleReader() {
     BIBLE_BOOKS.findIndex((b) => b.name === selectedBook) <
       BIBLE_BOOKS.length - 1;
 
-  const verseGroups = getVerseGroups(verses);
+  // Get section headings for current chapter
+  const chapterKey = `${selectedBook} ${selectedChapter}`;
+  const headings = SECTION_HEADINGS[chapterKey] || [];
+
+  // Build verse groups with section headings inserted
+  function buildVerseElements() {
+    if (verses.length === 0) return [];
+
+    const elements: { type: "heading" | "verses"; heading?: string; verses?: ChapterVerse[] }[] = [];
+    let currentVerses: ChapterVerse[] = [];
+    let lastBreakVerse = 0;
+
+    for (let i = 0; i < verses.length; i++) {
+      const v = verses[i];
+
+      // Check if there's a heading at this verse
+      const heading = headings.find((h) => h.verse === v.verse);
+
+      if (heading) {
+        // Push any accumulated verses before this heading
+        if (currentVerses.length > 0) {
+          elements.push({ type: "verses", verses: currentVerses });
+          currentVerses = [];
+        }
+        elements.push({ type: "heading", heading: heading.heading });
+        lastBreakVerse = v.verse;
+      }
+
+      currentVerses.push(v);
+
+      // Insert paragraph break every 4-6 verses (only if no heading coming soon)
+      const versesInGroup = v.verse - lastBreakVerse;
+      const nextHeading = headings.find((h) => h.verse > v.verse && h.verse <= v.verse + 3);
+
+      if (
+        !nextHeading &&
+        versesInGroup >= 4 &&
+        i < verses.length - 1 &&
+        (v.text.endsWith(".") || v.text.endsWith("?") || v.text.endsWith("!") || v.text.endsWith('."') || versesInGroup >= 6)
+      ) {
+        elements.push({ type: "verses", verses: currentVerses });
+        currentVerses = [];
+        lastBreakVerse = v.verse;
+      }
+    }
+
+    if (currentVerses.length > 0) {
+      elements.push({ type: "verses", verses: currentVerses });
+    }
+
+    return elements;
+  }
+
+  const verseElements = buildVerseElements();
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -246,39 +300,53 @@ export function BibleReader() {
               </button>
             </div>
           ) : (
-            <div className="space-y-5">
-              {/* Drop cap first verse */}
-              {verseGroups.map((group, groupIdx) => (
-                <p key={groupIdx} className="leading-[2] text-[15px] sm:text-base text-foreground/90">
-                  {group.map((v, vIdx) => (
-                    <span key={v.verse} className="group">
-                      {groupIdx === 0 && vIdx === 0 ? (
-                        // First verse of the chapter — drop cap style
-                        <>
-                          <sup className="text-[10px] font-bold text-primary mr-0.5 select-none">
-                            {v.verse}
-                          </sup>
-                          <span className="float-left text-5xl font-serif font-bold leading-[0.85] mr-1.5 mt-1 gradient-text select-text">
-                            {v.text.charAt(0)}
-                          </span>
-                          <span className="hover:bg-highlight/40 rounded-sm transition-colors selection:bg-primary/20">
-                            {v.text.slice(1)}
-                          </span>{" "}
-                        </>
-                      ) : (
-                        <>
-                          <sup className="text-[10px] font-bold text-primary/60 mr-0.5 select-none">
-                            {v.verse}
-                          </sup>
-                          <span className="hover:bg-highlight/40 rounded-sm transition-colors selection:bg-primary/20">
-                            {v.text}
-                          </span>{" "}
-                        </>
-                      )}
-                    </span>
-                  ))}
-                </p>
-              ))}
+            <div className="space-y-4">
+              {verseElements.map((el, elIdx) => {
+                if (el.type === "heading") {
+                  return (
+                    <h3
+                      key={`heading-${elIdx}`}
+                      className={`text-lg font-bold text-foreground tracking-tight ${elIdx === 0 ? "" : "mt-8"} mb-1`}
+                    >
+                      {el.heading}
+                    </h3>
+                  );
+                }
+
+                const group = el.verses!;
+                const isFirstGroup = elIdx === 0 || (elIdx === 1 && verseElements[0].type === "heading");
+
+                return (
+                  <p key={`verses-${elIdx}`} className="leading-[2] text-[15px] sm:text-base text-foreground/90">
+                    {group.map((v, vIdx) => (
+                      <span key={v.verse}>
+                        {isFirstGroup && vIdx === 0 ? (
+                          <>
+                            <sup className="text-[10px] font-bold text-primary mr-0.5 select-none">
+                              {v.verse}
+                            </sup>
+                            <span className="float-left text-5xl font-serif font-bold leading-[0.85] mr-1.5 mt-1 gradient-text select-text">
+                              {v.text.charAt(0)}
+                            </span>
+                            <span className="hover:bg-highlight/40 rounded-sm transition-colors selection:bg-primary/20">
+                              {v.text.slice(1)}
+                            </span>{" "}
+                          </>
+                        ) : (
+                          <>
+                            <sup className="text-[10px] font-bold text-primary/60 mr-0.5 select-none">
+                              {v.verse}
+                            </sup>
+                            <span className="hover:bg-highlight/40 rounded-sm transition-colors selection:bg-primary/20">
+                              {v.text}
+                            </span>{" "}
+                          </>
+                        )}
+                      </span>
+                    ))}
+                  </p>
+                );
+              })}
             </div>
           )}
         </div>
