@@ -80,7 +80,6 @@ export function BibleReader() {
     async (book: string, chapter: number, trans: Translation) => {
       setLoading(true);
       setError(null);
-      setHeadings([]);
       try {
         const params = new URLSearchParams({
           book,
@@ -90,15 +89,19 @@ export function BibleReader() {
         const res = await fetch(`/api/bible/chapter?${params}`);
         if (!res.ok) throw new Error("Failed to load chapter");
         const data: ChapterResponse = await res.json();
-        setVerses(data.verses);
-        setChapterRef(data.reference);
 
-        // Check for manual headings first
+        // Check for manual headings
         const key = `${book} ${chapter}`;
-        if (SECTION_HEADINGS[key]) {
-          setHeadings(SECTION_HEADINGS[key]);
-        } else {
-          // Fetch AI-generated headings
+        const manualHeadings = SECTION_HEADINGS[key] || [];
+
+        // Set verses and headings together so they render at the same time
+        setVerses(data.verses);
+        setHeadings(manualHeadings);
+        setChapterRef(data.reference);
+        setLoading(false);
+
+        // If no manual headings, fetch AI-generated ones
+        if (manualHeadings.length === 0 && data.verses.length > 0) {
           const versesText = data.verses
             .map((v) => `${v.verse}. ${v.text}`)
             .join("\n");
@@ -107,19 +110,18 @@ export function BibleReader() {
             chapter: String(chapter),
             verses: versesText,
           });
-          fetch(`/api/ai/headings?${hParams}`)
-            .then((r) => r.json())
-            .then((h) => {
-              if (h.headings && h.headings.length > 0) {
-                setHeadings(h.headings);
-              }
-            })
-            .catch(() => {});
+          try {
+            const hRes = await fetch(`/api/ai/headings?${hParams}`);
+            const h = await hRes.json();
+            if (h.headings && h.headings.length > 0) {
+              setHeadings(h.headings);
+            }
+          } catch {}
         }
       } catch {
         setError("Could not load this chapter. Please try again.");
         setVerses([]);
-      } finally {
+        setHeadings([]);
         setLoading(false);
       }
     },
