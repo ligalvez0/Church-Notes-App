@@ -249,7 +249,7 @@ export default function NoteDetailPage({
             ) : (
               <Sparkles className="h-4 w-4" />
             )}
-            {summarizing ? "Generating summary..." : "Summarize with AI"}
+            {summarizing ? "Generating summary..." : "Generate Summary"}
           </button>
         ) : (
           <div className="space-y-4 animate-fade-in">
