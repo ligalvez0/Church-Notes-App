@@ -8,7 +8,7 @@ import { NoteHeader } from "@/components/notes/note-header";
 import { SaveStatus } from "@/components/editor/save-status";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/stores/editor-store";
-import { Trash2, Loader2, Star, Sparkles } from "lucide-react";
+import { Trash2, Loader2, Star, Cross } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -247,7 +247,7 @@ export default function NoteDetailPage({
             {summarizing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Sparkles className="h-4 w-4" />
+              <Cross className="h-4 w-4" />
             )}
             {summarizing ? "Generating summary..." : "Generate Summary"}
           </button>
@@ -255,7 +255,7 @@ export default function NoteDetailPage({
           <div className="space-y-4 animate-fade-in">
             <div className="flex items-center gap-2 mb-3">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
-                <Sparkles className="h-3.5 w-3.5 text-white" />
+                <Cross className="h-3.5 w-3.5 text-white" />
               </div>
               <h3 className="text-sm font-semibold">Summary</h3>
             </div>
