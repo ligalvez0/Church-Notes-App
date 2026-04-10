@@ -24,3 +24,14 @@ export const TRANSLATIONS: Record<BibleTranslation, string> = {
   web: "World English Bible",
   esv: "English Standard Version",
 };
+
+export interface ChapterVerse {
+  verse: number;
+  text: string;
+}
+
+export interface ChapterResponse {
+  reference: string;
+  translation: string;
+  verses: ChapterVerse[];
+}

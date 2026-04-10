@@ -1,118 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { BookOpen, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
+import { BookOpen, Library } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BibleReader } from "@/components/scripture/bible-reader";
+import { MyReferences } from "@/components/scripture/my-references";
 
-interface ScriptureGroup {
-  book: string;
-  references: {
-    id: string;
-    chapter: number;
-    verse_start: number;
-    verse_end: number | null;
-    note_id: string;
-    note_title: string;
-  }[];
-}
+type Tab = "browse" | "references";
 
 export default function ScripturePage() {
-  const [groups, setGroups] = useState<ScriptureGroup[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadScriptures();
-  }, []);
-
-  async function loadScriptures() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    // Get all scripture references for user's notes
-    const { data } = await supabase
-      .from("scripture_references")
-      .select(`
-        id, book, chapter, verse_start, verse_end, note_id,
-        sermon_notes!inner(title, user_id)
-      `)
-      .eq("sermon_notes.user_id", user.id)
-      .order("book")
-      .order("chapter")
-      .order("verse_start");
-
-    if (data) {
-      const grouped: Record<string, ScriptureGroup> = {};
-      for (const ref of data) {
-        if (!grouped[ref.book]) {
-          grouped[ref.book] = { book: ref.book, references: [] };
-        }
-        const noteData = ref.sermon_notes as unknown as { title: string };
-        grouped[ref.book].references.push({
-          id: ref.id,
-          chapter: ref.chapter,
-          verse_start: ref.verse_start,
-          verse_end: ref.verse_end,
-          note_id: ref.note_id,
-          note_title: noteData?.title || "Untitled",
-        });
-      }
-      setGroups(Object.values(grouped));
-    }
-    setLoading(false);
-  }
+  const [activeTab, setActiveTab] = useState<Tab>("browse");
 
   return (
-    <div className="mx-auto max-w-3xl p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Scripture Index</h1>
-      <p className="text-sm text-muted-foreground">
-        Every passage referenced across your sermon notes.
-      </p>
+    <div className="mx-auto max-w-3xl p-4 sm:p-6 space-y-6 animate-fade-in">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+          <span className="gradient-text">Bible</span>
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1.5">
+          Read Scripture and explore your references.
+        </p>
+      </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : groups.length === 0 ? (
-        <div className="flex flex-col items-center py-16 text-center">
-          <div className="rounded-2xl bg-muted p-6 mb-4">
-            <BookOpen className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-medium">No scripture references yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Scripture references will appear here as you add them to your notes.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {groups.map((group) => (
-            <Card key={group.book}>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-primary mb-2">{group.book}</h3>
-                <div className="space-y-1">
-                  {group.references.map((ref) => (
-                    <Link
-                      key={ref.id}
-                      href={`/notes/${ref.note_id}`}
-                      className="flex items-center justify-between py-1 text-sm hover:text-primary"
-                    >
-                      <span>
-                        {ref.chapter}:{ref.verse_start}
-                        {ref.verse_end ? `-${ref.verse_end}` : ""}
-                      </span>
-                      <span className="text-muted-foreground text-xs">
-                        {ref.note_title}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* Tabs */}
+      <div className="flex rounded-2xl border border-border/40 bg-card p-1 shadow-sm">
+        <button
+          onClick={() => setActiveTab("browse")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all",
+            activeTab === "browse"
+              ? "text-white shadow-md shadow-primary/25"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+          )}
+          style={
+            activeTab === "browse"
+              ? { background: "var(--gradient-primary)" }
+              : undefined
+          }
+        >
+          <BookOpen className="h-4 w-4" />
+          Browse Bible
+        </button>
+        <button
+          onClick={() => setActiveTab("references")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all",
+            activeTab === "references"
+              ? "text-white shadow-md shadow-primary/25"
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+          )}
+          style={
+            activeTab === "references"
+              ? { background: "var(--gradient-primary)" }
+              : undefined
+          }
+        >
+          <Library className="h-4 w-4" />
+          My References
+        </button>
+      </div>
+
+      {/* Tab content */}
+      {activeTab === "browse" ? <BibleReader /> : <MyReferences />}
     </div>
   );
 }
