@@ -64,12 +64,22 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
   { id: "DRB",   name: "Douay-Rheims Bible",           language: "Latin/English", apiSource: "bolls" },
 
   // ── YouVersion (requires YOUVERSION_APP_KEY + accepted licenses) ──
-  { id: "YV-NIV",      name: "New International Version",       language: "English", apiSource: "youversion", youversionId: 111 },
-  { id: "YV-AMP",      name: "Amplified Bible",                 language: "English", apiSource: "youversion", youversionId: 1588 },
-  { id: "YV-NASB2020", name: "New American Standard Bible 2020",language: "English", apiSource: "youversion", youversionId: 2692 },
-  { id: "YV-TPT",      name: "The Passion Translation",         language: "English", apiSource: "youversion", youversionId: 1849 },
-  { id: "YV-NIrV",     name: "New International Reader's Version", language: "English", apiSource: "youversion", youversionId: 110 },
-  { id: "YV-LSV",      name: "Literal Standard Version",        language: "English", apiSource: "youversion", youversionId: 2660 },
+  { id: "YV-NIV",      name: "New International Version",            language: "English", apiSource: "youversion", youversionId: 111 },
+  { id: "YV-NIVUK",    name: "New International Version UK",          language: "English", apiSource: "youversion", youversionId: 113 },
+  { id: "YV-NIrV",     name: "New International Reader's Version",    language: "English", apiSource: "youversion", youversionId: 110 },
+  { id: "YV-AMP",      name: "Amplified Bible",                       language: "English", apiSource: "youversion", youversionId: 1588 },
+  { id: "YV-NASB2020", name: "New American Standard Bible 2020",      language: "English", apiSource: "youversion", youversionId: 2692 },
+  { id: "YV-NASB1995", name: "New American Standard Bible 1995",      language: "English", apiSource: "youversion", youversionId: 100 },
+  { id: "YV-TPT",      name: "The Passion Translation",               language: "English", apiSource: "youversion", youversionId: 1849 },
+  { id: "YV-LSV",      name: "Literal Standard Version",              language: "English", apiSource: "youversion", youversionId: 2660 },
+  { id: "YV-EASY",     name: "EasyEnglish Bible",                     language: "English", apiSource: "youversion", youversionId: 2079 },
+  { id: "YV-FBV",      name: "Free Bible Version",                    language: "English", apiSource: "youversion", youversionId: 1932 },
+  { id: "YV-CPDV",     name: "Catholic Public Domain Version",        language: "English", apiSource: "youversion", youversionId: 42 },
+  { id: "YV-WMB",      name: "World Messianic Bible",                 language: "English", apiSource: "youversion", youversionId: 1209 },
+  { id: "YV-OJB",      name: "Orthodox Jewish Bible",                 language: "English", apiSource: "youversion", youversionId: 130 },
+  { id: "YV-GNV",      name: "Geneva Bible",                          language: "English", apiSource: "youversion", youversionId: 2163 },
+  { id: "YV-PEV",      name: "Plain English Version",                 language: "English", apiSource: "youversion", youversionId: 2530 },
+  { id: "YV-TCENT",    name: "Text-Critical English New Testament",   language: "English", apiSource: "youversion", youversionId: 3427 },
 ];
 
 /** Quick lookup helpers */
