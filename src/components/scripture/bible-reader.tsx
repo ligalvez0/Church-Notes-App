@@ -94,29 +94,49 @@ export function BibleReader() {
         const key = `${book} ${chapter}`;
         const manualHeadings = SECTION_HEADINGS[key] || [];
 
-        // Set verses and headings together so they render at the same time
-        setVerses(data.verses);
-        setHeadings(manualHeadings);
-        setChapterRef(data.reference);
-        setLoading(false);
+        if (manualHeadings.length > 0) {
+          // Use manual headings — instant
+          setVerses(data.verses);
+          setHeadings(manualHeadings);
+          setChapterRef(data.reference);
+          setLoading(false);
+        } else {
+          // Check localStorage cache for AI headings
+          const cacheKey = `bible-headings-${book}-${chapter}-${trans}`;
+          const cached = localStorage.getItem(cacheKey);
 
-        // If no manual headings, fetch AI-generated ones
-        if (manualHeadings.length === 0 && data.verses.length > 0) {
-          const versesText = data.verses
-            .map((v) => `${v.verse}. ${v.text}`)
-            .join("\n");
-          const hParams = new URLSearchParams({
-            book,
-            chapter: String(chapter),
-            verses: versesText,
-          });
-          try {
-            const hRes = await fetch(`/api/ai/headings?${hParams}`);
-            const h = await hRes.json();
-            if (h.headings && h.headings.length > 0) {
-              setHeadings(h.headings);
-            }
-          } catch {}
+          if (cached) {
+            // Use cached AI headings — instant
+            setVerses(data.verses);
+            setHeadings(JSON.parse(cached));
+            setChapterRef(data.reference);
+            setLoading(false);
+          } else {
+            // Show verses immediately, then fetch AI headings
+            setVerses(data.verses);
+            setHeadings([]);
+            setChapterRef(data.reference);
+            setLoading(false);
+
+            // Fetch AI headings in background
+            const versesText = data.verses
+              .map((v) => `${v.verse}. ${v.text}`)
+              .join("\n");
+            const hParams = new URLSearchParams({
+              book,
+              chapter: String(chapter),
+              verses: versesText,
+            });
+            try {
+              const hRes = await fetch(`/api/ai/headings?${hParams}`);
+              const h = await hRes.json();
+              if (h.headings && h.headings.length > 0) {
+                setHeadings(h.headings);
+                // Cache for next time
+                localStorage.setItem(cacheKey, JSON.stringify(h.headings));
+              }
+            } catch {}
+          }
         }
       } catch {
         setError("Could not load this chapter. Please try again.");
