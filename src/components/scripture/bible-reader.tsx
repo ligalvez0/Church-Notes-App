@@ -12,6 +12,7 @@ import { SECTION_HEADINGS } from "@/lib/bible-headings";
 import type { ChapterVerse, ChapterResponse } from "@/types/bible";
 import {
   TRANSLATIONS_LIST,
+  getTranslation,
   getTranslationsByLanguage,
   getLanguages,
 } from "@/types/bible";
@@ -51,9 +52,14 @@ export function BibleReader() {
         if (!res.ok) throw new Error("Failed to load chapter");
         const data: ChapterResponse = await res.json();
 
-        // Check for manual headings
+        // Determine translation language
+        const transInfo = getTranslation(trans);
+        const transLang = transInfo?.language ?? "English";
+        const isEnglish = transLang === "English" || transLang === "Latin/English";
+
+        // Check for manual headings (only for English translations)
         const key = `${book} ${chapter}`;
-        const manualHeadings = SECTION_HEADINGS[key] || [];
+        const manualHeadings = isEnglish ? (SECTION_HEADINGS[key] || []) : [];
 
         if (manualHeadings.length > 0) {
           // Use manual headings -- instant
@@ -62,7 +68,7 @@ export function BibleReader() {
           setChapterRef(data.reference);
           setLoading(false);
         } else {
-          // Check localStorage cache for AI headings
+          // Check localStorage cache for AI headings (keyed by translation)
           const cacheKey = `bible-headings-${book}-${chapter}-${trans}`;
           const cached = localStorage.getItem(cacheKey);
 
@@ -79,7 +85,7 @@ export function BibleReader() {
             setChapterRef(data.reference);
             setLoading(false);
 
-            // Fetch AI headings in background
+            // Fetch AI headings in background (pass language for non-English)
             const versesText = data.verses
               .map((v) => `${v.verse}. ${v.text}`)
               .join("\n");
@@ -87,6 +93,7 @@ export function BibleReader() {
               book,
               chapter: String(chapter),
               verses: versesText,
+              language: transLang,
             });
             try {
               const hRes = await fetch(`/api/ai/headings?${hParams}`);

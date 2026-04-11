@@ -6,14 +6,17 @@ export async function GET(request: NextRequest) {
   const book = request.nextUrl.searchParams.get("book");
   const chapter = request.nextUrl.searchParams.get("chapter");
   const verseTexts = request.nextUrl.searchParams.get("verses");
+  const language = request.nextUrl.searchParams.get("language") || "English";
 
   if (!book || !chapter) {
     return NextResponse.json({ error: "book and chapter required" }, { status: 400 });
   }
 
-  // Check manual headings first
+  const isEnglish = language === "English" || language === "Latin/English";
+
+  // Check manual headings first (only for English)
   const key = `${book} ${chapter}`;
-  if (SECTION_HEADINGS[key]) {
+  if (isEnglish && SECTION_HEADINGS[key]) {
     return NextResponse.json({ headings: SECTION_HEADINGS[key], source: "manual" });
   }
 
@@ -31,10 +34,10 @@ export async function GET(request: NextRequest) {
           role: "user",
           content: `You are a Bible study assistant. Given the following chapter text from ${book} ${chapter}, provide section headings like those found in study Bibles (e.g. NLT, ESV Study Bible).
 
-Return ONLY a JSON array of objects with "verse" (the verse number where the heading starts) and "heading" (the heading text). Use 2-5 headings per chapter. Keep headings concise (3-8 words).
+${isEnglish ? "" : `IMPORTANT: The text is in ${language}. Write ALL headings in ${language}.\n\n`}Return ONLY a JSON array of objects with "verse" (the verse number where the heading starts) and "heading" (the heading text). Use 2-5 headings per chapter. Keep headings concise (3-8 words).
 
 Example output:
-[{"verse":1,"heading":"The Word Became Flesh"},{"verse":19,"heading":"John the Baptist's Testimony"}]
+[{"verse":1,"heading":"${isEnglish ? "The Word Became Flesh" : "El Verbo se hizo carne"}"},{"verse":19,"heading":"${isEnglish ? "John the Baptist's Testimony" : "El testimonio de Juan"}"}]
 
 Chapter text:
 ${verseTexts}
