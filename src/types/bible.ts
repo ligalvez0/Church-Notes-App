@@ -48,7 +48,7 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
   { id: "TLV",   name: "Tree of Life Version",         language: "English", apiSource: "bolls" },
 
   // ── Spanish ──────────────────────────────────────────────
-  { id: "RVR60", name: "Reina-Valera 1960",            language: "Spanish", apiSource: "bolls" },
+  { id: "RV1960", name: "Reina-Valera 1960",            language: "Spanish", apiSource: "bolls" },
   { id: "LBLA",  name: "La Biblia de las Americas",    language: "Spanish", apiSource: "bolls" },
   { id: "NVI",   name: "Nueva Version Internacional",  language: "Spanish", apiSource: "bolls" },
 
