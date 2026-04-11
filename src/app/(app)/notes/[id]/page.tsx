@@ -34,6 +34,7 @@ export default function NoteDetailPage({
   const [title, setTitle] = useState("");
   const [speaker, setSpeaker] = useState("");
   const [date, setDate] = useState("");
+  const [seriesId, setSeriesId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [summary, setSummary] = useState<{
     summary: string;
@@ -73,6 +74,7 @@ export default function NoteDetailPage({
       setTitle(data.title);
       setSpeaker(data.speaker || "");
       setDate(data.date.split("T")[0]);
+      setSeriesId(data.series_id || null);
       contentRef.current = data.content;
       plainTextRef.current = data.plain_text;
       // Mark initial load done after a tick so the useEffect doesn't trigger a save
@@ -93,6 +95,7 @@ export default function NoteDetailPage({
           title: title || "Untitled Sermon",
           speaker: speaker || null,
           date,
+          series_id: seriesId,
           content: contentRef.current,
           plain_text: plainTextRef.current,
           updated_at: new Date().toISOString(),
@@ -106,7 +109,7 @@ export default function NoteDetailPage({
     } finally {
       setSaving(false);
     }
-  }, [id, title, speaker, date, setDirty, setSaving, setLastSavedAt]);
+  }, [id, title, speaker, date, seriesId, setDirty, setSaving, setLastSavedAt]);
 
   const triggerSave = useCallback(() => {
     if (!initialLoadDone.current) return;
@@ -118,7 +121,7 @@ export default function NoteDetailPage({
   // Save on title/speaker/date change
   useEffect(() => {
     triggerSave();
-  }, [title, speaker, date, triggerSave]);
+  }, [title, speaker, date, seriesId, triggerSave]);
 
   const handleEditorChange = useCallback(
     (content: Json, plainText: string) => {
@@ -226,9 +229,11 @@ export default function NoteDetailPage({
         title={title}
         speaker={speaker}
         date={date}
+        seriesId={seriesId}
         onTitleChange={setTitle}
         onSpeakerChange={setSpeaker}
         onDateChange={setDate}
+        onSeriesChange={setSeriesId}
       />
 
       <SermonEditor

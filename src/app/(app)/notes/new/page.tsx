@@ -15,6 +15,7 @@ export default function NewNotePage() {
   const [title, setTitle] = useState("");
   const [speaker, setSpeaker] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [seriesId, setSeriesId] = useState<string | null>(null);
   const contentRef = useRef<Json>({});
   const plainTextRef = useRef("");
   const setCurrentNoteId = useEditorStore((s) => s.setCurrentNoteId);
@@ -35,6 +36,7 @@ export default function NewNotePage() {
         title: title || "Untitled Sermon",
         speaker: speaker || null,
         date,
+        series_id: seriesId,
         content: contentRef.current,
         plain_text: plainTextRef.current,
         updated_at: new Date().toISOString(),
@@ -66,7 +68,7 @@ export default function NewNotePage() {
     } finally {
       setSaving(false);
     }
-  }, [title, speaker, date, setCurrentNoteId, setDirty, setSaving, setLastSavedAt]);
+  }, [title, speaker, date, seriesId, setCurrentNoteId, setDirty, setSaving, setLastSavedAt]);
 
   // Trigger save with short debounce (500ms) on any change
   const triggerSave = useCallback(() => {
@@ -81,7 +83,7 @@ export default function NewNotePage() {
     if (noteIdRef.current || title || speaker) {
       triggerSave();
     }
-  }, [title, speaker, date, triggerSave]);
+  }, [title, speaker, date, seriesId, triggerSave]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -115,9 +117,11 @@ export default function NewNotePage() {
         title={title}
         speaker={speaker}
         date={date}
+        seriesId={seriesId}
         onTitleChange={setTitle}
         onSpeakerChange={setSpeaker}
         onDateChange={setDate}
+        onSeriesChange={setSeriesId}
       />
 
       <SermonEditor onChange={handleEditorChange} />
