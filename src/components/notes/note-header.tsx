@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Calendar, Library } from "lucide-react";
+import { User, Calendar, Library, Plus, Loader2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface NoteHeaderProps {
@@ -31,6 +31,9 @@ export function NoteHeader({
   onSeriesChange,
 }: NoteHeaderProps) {
   const [seriesList, setSeriesList] = useState<SeriesOption[]>([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newSeriesName, setNewSeriesName] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     loadSeries();
@@ -48,6 +51,41 @@ export function NoteHeader({
       .order("name");
 
     if (data) setSeriesList(data);
+  }
+
+  async function handleCreateSeries() {
+    if (!newSeriesName.trim()) return;
+    setCreating(true);
+
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) { setCreating(false); return; }
+
+    const { data } = await supabase
+      .from("series")
+      .insert({
+        user_id: session.user.id,
+        name: newSeriesName.trim(),
+      })
+      .select("id, name")
+      .single();
+
+    if (data) {
+      setSeriesList((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      onSeriesChange(data.id);
+    }
+
+    setNewSeriesName("");
+    setShowCreate(false);
+    setCreating(false);
+  }
+
+  function handleSeriesSelect(value: string) {
+    if (value === "__create__") {
+      setShowCreate(true);
+    } else {
+      onSeriesChange(value || null);
+    }
   }
 
   return (
@@ -81,16 +119,51 @@ export function NoteHeader({
           <Library className="h-3.5 w-3.5 text-primary/60" />
           <select
             value={seriesId || ""}
-            onChange={(e) => onSeriesChange(e.target.value || null)}
+            onChange={(e) => handleSeriesSelect(e.target.value)}
             className="bg-transparent text-sm focus:outline-none appearance-none cursor-pointer"
           >
             <option value="">No series</option>
             {seriesList.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
+            <option value="__create__">+ New series...</option>
           </select>
         </div>
       </div>
+
+      {/* Inline create series */}
+      {showCreate && (
+        <div className="flex items-center gap-2 animate-fade-in">
+          <div className="flex items-center gap-2 flex-1 rounded-2xl border border-primary/30 bg-primary/5 px-3.5 py-2">
+            <Plus className="h-3.5 w-3.5 text-primary" />
+            <input
+              value={newSeriesName}
+              onChange={(e) => setNewSeriesName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCreateSeries();
+                if (e.key === "Escape") { setShowCreate(false); setNewSeriesName(""); }
+              }}
+              placeholder="Series name (e.g. Romans Study)"
+              className="bg-transparent text-sm flex-1 focus:outline-none placeholder:text-muted-foreground/40"
+              autoFocus
+            />
+          </div>
+          <button
+            onClick={handleCreateSeries}
+            disabled={!newSeriesName.trim() || creating}
+            className="flex items-center gap-1 px-3 py-2 rounded-2xl text-xs font-medium text-white disabled:opacity-50"
+            style={{ background: "var(--gradient-primary)" }}
+          >
+            {creating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Create"}
+          </button>
+          <button
+            onClick={() => { setShowCreate(false); setNewSeriesName(""); }}
+            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
