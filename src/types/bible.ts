@@ -27,65 +27,39 @@ export interface TranslationInfo {
 
 /**
  * Master list of available Bible translations.
- * id = the code used for both our internal state and the API request.
- * apiSource tells the backend which API to call.
- *
- * Bolls.life codes are UPPER-CASE; bible-api.com codes are lower-case.
+ * Only includes translations verified to work with their respective APIs.
  */
 export const TRANSLATIONS_LIST: TranslationInfo[] = [
   // ── English ──────────────────────────────────────────────
   { id: "kjv",   name: "King James Version",           language: "English", apiSource: "bible-api" },
   { id: "NKJV",  name: "New King James Version",       language: "English", apiSource: "bolls" },
-  { id: "asv",   name: "American Standard Version",     language: "English", apiSource: "bible-api" },
-  { id: "web",   name: "World English Bible",           language: "English", apiSource: "bible-api" },
-  { id: "YLT",   name: "Young's Literal Translation",   language: "English", apiSource: "bolls" },
-  { id: "NET",   name: "NET Bible",                     language: "English", apiSource: "bolls" },
-  { id: "BSB",   name: "Berean Standard Bible",         language: "English", apiSource: "bolls" },
-  { id: "NASB",  name: "New American Standard Bible",   language: "English", apiSource: "bolls" },
+  { id: "asv",   name: "American Standard Version",    language: "English", apiSource: "bible-api" },
+  { id: "web",   name: "World English Bible",          language: "English", apiSource: "bible-api" },
+  { id: "YLT",   name: "Young's Literal Translation",  language: "English", apiSource: "bolls" },
+  { id: "NET",   name: "NET Bible",                    language: "English", apiSource: "bolls" },
+  { id: "BSB",   name: "Berean Standard Bible",        language: "English", apiSource: "bolls" },
+  { id: "NASB",  name: "New American Standard Bible",  language: "English", apiSource: "bolls" },
+  { id: "ESV",   name: "English Standard Version",     language: "English", apiSource: "bolls" },
+  { id: "CJB",   name: "Complete Jewish Bible",        language: "English", apiSource: "bolls" },
+  { id: "TLV",   name: "Tree of Life Version",         language: "English", apiSource: "bolls" },
 
   // ── Spanish ──────────────────────────────────────────────
-  { id: "RVR60", name: "Reina-Valera 1960",             language: "Spanish", apiSource: "bolls" },
-  { id: "LBLA",  name: "La Biblia de las Americas",     language: "Spanish", apiSource: "bolls" },
-  { id: "NVI",   name: "Nueva Version Internacional",   language: "Spanish", apiSource: "bolls" },
-
-  // ── Portuguese ───────────────────────────────────────────
-  { id: "TBTA",  name: "Traducao Brasileira",           language: "Portuguese", apiSource: "bolls" },
-  { id: "NAA",   name: "Nova Almeida Atualizada",       language: "Portuguese", apiSource: "bolls" },
-  { id: "ACF",   name: "Almeida Corrigida Fiel",        language: "Portuguese", apiSource: "bolls" },
-
-  // ── French ───────────────────────────────────────────────
-  { id: "LSG",   name: "Louis Segond 1910",             language: "French", apiSource: "bolls" },
-  { id: "BDS",   name: "Bible du Semeur",               language: "French", apiSource: "bolls" },
+  { id: "RVR60", name: "Reina-Valera 1960",            language: "Spanish", apiSource: "bolls" },
+  { id: "LBLA",  name: "La Biblia de las Americas",    language: "Spanish", apiSource: "bolls" },
+  { id: "NVI",   name: "Nueva Version Internacional",  language: "Spanish", apiSource: "bolls" },
 
   // ── German ───────────────────────────────────────────────
-  { id: "LUTH1545", name: "Luther Bible 1545",          language: "German", apiSource: "bolls" },
-  { id: "ELB",   name: "Elberfelder Bibel",             language: "German", apiSource: "bolls" },
+  { id: "LUTH1545", name: "Luther Bible 1545",         language: "German", apiSource: "bolls" },
+  { id: "ELB",   name: "Elberfelder Bibel",            language: "German", apiSource: "bolls" },
 
   // ── Russian ──────────────────────────────────────────────
-  { id: "SYNOD", name: "Synodal Translation",           language: "Russian", apiSource: "bolls" },
-  { id: "RSP",   name: "Russian Modern Translation",    language: "Russian", apiSource: "bolls" },
+  { id: "SYNOD", name: "Synodal Translation",          language: "Russian", apiSource: "bolls" },
 
   // ── Chinese ──────────────────────────────────────────────
-  { id: "CUVS",  name: "Chinese Union Simplified",      language: "Chinese", apiSource: "bolls" },
-  { id: "CUVC",  name: "Chinese Union Traditional",     language: "Chinese", apiSource: "bolls" },
-
-  // ── Korean ───────────────────────────────────────────────
-  { id: "KRV",   name: "Korean Revised Version",        language: "Korean", apiSource: "bolls" },
-
-  // ── Arabic ───────────────────────────────────────────────
-  { id: "SVD",   name: "Smith & Van Dyke",              language: "Arabic", apiSource: "bolls" },
-
-  // ── Italian ──────────────────────────────────────────────
-  { id: "NR06",  name: "Nuova Riveduta 2006",           language: "Italian", apiSource: "bolls" },
-
-  // ── Romanian ─────────────────────────────────────────────
-  { id: "RMNN",  name: "Cornilescu",                    language: "Romanian", apiSource: "bolls" },
-
-  // ── Ukrainian ────────────────────────────────────────────
-  { id: "UKR",   name: "Ukrainian Bible",               language: "Ukrainian", apiSource: "bolls" },
+  { id: "CUVS",  name: "Chinese Union Simplified",     language: "Chinese", apiSource: "bolls" },
 
   // ── Latin ────────────────────────────────────────────────
-  { id: "VULG",  name: "Biblia Sacra Vulgata",          language: "Latin", apiSource: "bolls" },
+  { id: "DRB",   name: "Douay-Rheims Bible",           language: "Latin/English", apiSource: "bolls" },
 ];
 
 /** Quick lookup helpers */
