@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { BIBLE_BOOKS } from "@/lib/bible-data";
 import { SECTION_HEADINGS } from "@/lib/bible-headings";
+import { translateHeadings } from "@/lib/bible-headings-i18n";
 import type { ChapterVerse, ChapterResponse } from "@/types/bible";
 import {
   TRANSLATIONS_LIST,
@@ -55,37 +56,35 @@ export function BibleReader() {
         // Determine translation language
         const transInfo = getTranslation(trans);
         const transLang = transInfo?.language ?? "English";
-        const isEnglish = transLang === "English" || transLang === "Latin/English";
 
-        // Check for manual headings (available for many chapters)
+        // Check for manual headings, translated to the correct language
         const key = `${book} ${chapter}`;
-        const manualHeadings = SECTION_HEADINGS[key] || [];
+        const rawHeadings = SECTION_HEADINGS[key] || [];
+        const localizedHeadings = translateHeadings(rawHeadings, transLang);
 
-        if (isEnglish && manualHeadings.length > 0) {
-          // English + manual headings — use directly, instant
+        if (localizedHeadings.length > 0) {
+          // Use translated manual headings — instant
           setVerses(data.verses);
-          setHeadings(manualHeadings);
+          setHeadings(localizedHeadings);
           setChapterRef(data.reference);
           setLoading(false);
         } else {
-          // Check localStorage cache for AI headings (keyed by translation)
+          // No manual headings for this chapter — try AI
           const cacheKey = `bible-headings-${book}-${chapter}-${trans}`;
           const cached = localStorage.getItem(cacheKey);
 
           if (cached) {
-            // Use cached AI headings -- instant
             setVerses(data.verses);
             setHeadings(JSON.parse(cached));
             setChapterRef(data.reference);
             setLoading(false);
           } else {
-            // Show verses immediately with manual headings as fallback
+            // Show verses immediately, fetch AI headings in background
             setVerses(data.verses);
-            setHeadings(manualHeadings);
+            setHeadings([]);
             setChapterRef(data.reference);
             setLoading(false);
 
-            // Try AI headings in background (for localized headings)
             const versesText = data.verses
               .map((v) => `${v.verse}. ${v.text}`)
               .join("\n");
@@ -100,7 +99,6 @@ export function BibleReader() {
               const h = await hRes.json();
               if (h.headings && h.headings.length > 0) {
                 setHeadings(h.headings);
-                // Cache for next time
                 localStorage.setItem(cacheKey, JSON.stringify(h.headings));
               }
             } catch {}

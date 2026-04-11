@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anthropic } from "@/lib/ai";
 import { SECTION_HEADINGS } from "@/lib/bible-headings";
+import { translateHeadings } from "@/lib/bible-headings-i18n";
 
 export async function GET(request: NextRequest) {
   const book = request.nextUrl.searchParams.get("book");
@@ -14,18 +15,19 @@ export async function GET(request: NextRequest) {
 
   const isEnglish = language === "English" || language === "Latin/English";
 
-  // Manual headings lookup
+  // Manual headings lookup, translated to the correct language
   const key = `${book} ${chapter}`;
-  const manualHeadings = SECTION_HEADINGS[key] || [];
+  const rawHeadings = SECTION_HEADINGS[key] || [];
+  const localizedHeadings = translateHeadings(rawHeadings, language);
 
-  // For English, use manual headings directly if available
-  if (isEnglish && manualHeadings.length > 0) {
-    return NextResponse.json({ headings: manualHeadings, source: "manual" });
+  // Use translated manual headings if available
+  if (localizedHeadings.length > 0) {
+    return NextResponse.json({ headings: localizedHeadings, source: "manual" });
   }
 
-  // No verses text provided — return manual headings as fallback
+  // No manual headings and no verses text — can't generate
   if (!verseTexts) {
-    return NextResponse.json({ headings: manualHeadings, source: manualHeadings.length > 0 ? "manual" : "none" });
+    return NextResponse.json({ headings: [], source: "none" });
   }
 
   // Try AI-generated headings (requires ANTHROPIC_API_KEY)
@@ -54,15 +56,13 @@ Return ONLY the JSON array, no other text.`,
     const text = message.content[0].type === "text" ? message.content[0].text : "";
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      // AI failed to parse — fall back to manual English headings
-      return NextResponse.json({ headings: manualHeadings, source: manualHeadings.length > 0 ? "manual_fallback" : "ai_error" });
+      return NextResponse.json({ headings: [], source: "ai_error" });
     }
 
     const headings = JSON.parse(jsonMatch[0]);
     return NextResponse.json({ headings, source: "ai" });
   } catch (err) {
     console.error("AI headings error:", err);
-    // AI unavailable — fall back to manual English headings
-    return NextResponse.json({ headings: manualHeadings, source: manualHeadings.length > 0 ? "manual_fallback" : "ai_error" });
+    return NextResponse.json({ headings: [], source: "ai_error" });
   }
 }
