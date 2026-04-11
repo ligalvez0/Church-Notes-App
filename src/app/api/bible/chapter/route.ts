@@ -3,6 +3,7 @@ import type { ChapterVerse, ChapterResponse } from "@/types/bible";
 import { getTranslation } from "@/types/bible";
 import { BIBLE_BOOKS } from "@/lib/bible-data";
 import { bookNameToUSFM, fetchPassage } from "@/lib/youversion";
+import { fetchChapter as fetchApiBibleChapter } from "@/lib/api-bible";
 
 /**
  * Map a canonical book name (e.g. "Genesis") to its 1-based book number
@@ -155,6 +156,29 @@ async function fetchChapterFromYouVersion(
   };
 }
 
+// ── API.Bible chapter fetcher ─────────────────────────────────────
+
+async function fetchChapterFromApiBible(
+  apiBibleId: string,
+  translationLabel: string,
+  bookName: string,
+  chapter: number
+): Promise<ChapterResponse | null> {
+  const result = await fetchApiBibleChapter(apiBibleId, bookName, chapter);
+  if (!result) return null;
+
+  const verses: ChapterVerse[] = result.verses.map((v) => ({
+    verse: v.verse,
+    text: v.text,
+  }));
+
+  return {
+    reference: result.reference,
+    translation: translationLabel,
+    verses,
+  };
+}
+
 // ── Route handler ──────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
@@ -184,7 +208,9 @@ export async function GET(request: NextRequest) {
   try {
     let result: ChapterResponse | null = null;
 
-    if (apiSource === "youversion" && info?.youversionId) {
+    if (apiSource === "api-bible" && info?.apiBibleId) {
+      result = await fetchChapterFromApiBible(info.apiBibleId, translationId.toUpperCase(), book, chapterNum);
+    } else if (apiSource === "youversion" && info?.youversionId) {
       result = await fetchChapterFromYouVersion(info.youversionId, translationId.toUpperCase(), book, chapterNum);
     } else if (apiSource === "bible-api") {
       result = await fetchChapterFromBibleApi(translationId, book, chapterNum);

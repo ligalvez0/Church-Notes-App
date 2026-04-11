@@ -16,7 +16,7 @@ export interface ParsedReference {
   raw: string;
 }
 
-export type ApiSource = "bolls" | "bible-api" | "youversion";
+export type ApiSource = "bolls" | "bible-api" | "youversion" | "api-bible";
 
 export interface TranslationInfo {
   id: string;
@@ -25,6 +25,8 @@ export interface TranslationInfo {
   apiSource: ApiSource;
   /** Numeric Bible ID for YouVersion API (only used when apiSource is "youversion") */
   youversionId?: number;
+  /** String Bible ID for API.Bible (only used when apiSource is "api-bible") */
+  apiBibleId?: string;
 }
 
 /**
@@ -80,6 +82,10 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
   { id: "YV-GNV",      name: "Geneva Bible",                          language: "English", apiSource: "youversion", youversionId: 2163 },
   { id: "YV-PEV",      name: "Plain English Version",                 language: "English", apiSource: "youversion", youversionId: 2530 },
   { id: "YV-TCENT",    name: "Text-Critical English New Testament",   language: "English", apiSource: "youversion", youversionId: 3427 },
+
+  // ── API.Bible (requires API_BIBLE_KEY) ──────────────────────────
+  { id: "NLT",         name: "New Living Translation",                language: "English", apiSource: "api-bible", apiBibleId: "d6e14a625393b4da-01" },
+  { id: "NTV",         name: "Nueva Traduccion Viviente",             language: "Spanish", apiSource: "api-bible", apiBibleId: "826f63861180e056-01" },
 ];
 
 /** Quick lookup helpers */
