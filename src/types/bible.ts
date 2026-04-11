@@ -64,13 +64,12 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
   { id: "DRB",   name: "Douay-Rheims Bible",           language: "Latin/English", apiSource: "bolls" },
 
   // ── YouVersion (requires YOUVERSION_APP_KEY + accepted licenses) ──
-  // IDs are discovered via /api/bible/discover — update youversionId after discovery
-  { id: "YV-NIV",  name: "New International Version",     language: "English", apiSource: "youversion", youversionId: 0 },
-  { id: "YV-NLT",  name: "New Living Translation",        language: "English", apiSource: "youversion", youversionId: 0 },
-  { id: "YV-AMP",  name: "Amplified Bible",               language: "English", apiSource: "youversion", youversionId: 0 },
-  { id: "YV-MSG",  name: "The Message",                   language: "English", apiSource: "youversion", youversionId: 0 },
-  { id: "YV-CSB",  name: "Christian Standard Bible",      language: "English", apiSource: "youversion", youversionId: 0 },
-  { id: "YV-NTV",  name: "Nueva Traduccion Viviente",     language: "Spanish", apiSource: "youversion", youversionId: 0 },
+  { id: "YV-NIV",      name: "New International Version",       language: "English", apiSource: "youversion", youversionId: 111 },
+  { id: "YV-AMP",      name: "Amplified Bible",                 language: "English", apiSource: "youversion", youversionId: 1588 },
+  { id: "YV-NASB2020", name: "New American Standard Bible 2020",language: "English", apiSource: "youversion", youversionId: 2692 },
+  { id: "YV-TPT",      name: "The Passion Translation",         language: "English", apiSource: "youversion", youversionId: 1849 },
+  { id: "YV-NIrV",     name: "New International Reader's Version", language: "English", apiSource: "youversion", youversionId: 110 },
+  { id: "YV-LSV",      name: "Literal Standard Version",        language: "English", apiSource: "youversion", youversionId: 2660 },
 ];
 
 /** Quick lookup helpers */
