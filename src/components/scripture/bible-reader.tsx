@@ -10,63 +10,16 @@ import {
 import { BIBLE_BOOKS } from "@/lib/bible-data";
 import { SECTION_HEADINGS } from "@/lib/bible-headings";
 import type { ChapterVerse, ChapterResponse } from "@/types/bible";
-
-type Translation = "kjv" | "asv" | "web";
-
-const TRANSLATION_LABELS: Record<Translation, string> = {
-  kjv: "KJV",
-  asv: "ASV",
-  web: "WEB",
-};
-
-// Known paragraph break points for common chapters (verse numbers where a new paragraph starts)
-// For chapters not listed, we'll insert visual breaks every 4-5 verses
-function getVerseGroups(verses: ChapterVerse[]): ChapterVerse[][] {
-  if (verses.length === 0) return [];
-
-  const groups: ChapterVerse[][] = [];
-  let currentGroup: ChapterVerse[] = [];
-
-  for (let i = 0; i < verses.length; i++) {
-    currentGroup.push(verses[i]);
-
-    // Check if we should start a new paragraph:
-    // - After every 4-5 verses for readability
-    // - When a verse ends with a period followed by a sentence that starts with a capital
-    const isLastVerse = i === verses.length - 1;
-    const versesInGroup = currentGroup.length;
-
-    if (!isLastVerse && versesInGroup >= 4) {
-      const currentText = verses[i].text;
-      // Break after sentences that end definitively
-      if (
-        currentText.endsWith(".") ||
-        currentText.endsWith("?") ||
-        currentText.endsWith("!") ||
-        currentText.endsWith('."') ||
-        currentText.endsWith(".'")
-      ) {
-        groups.push(currentGroup);
-        currentGroup = [];
-      } else if (versesInGroup >= 6) {
-        // Force break if group is getting too long
-        groups.push(currentGroup);
-        currentGroup = [];
-      }
-    }
-  }
-
-  if (currentGroup.length > 0) {
-    groups.push(currentGroup);
-  }
-
-  return groups;
-}
+import {
+  TRANSLATIONS_LIST,
+  getTranslationsByLanguage,
+  getLanguages,
+} from "@/types/bible";
 
 export function BibleReader() {
   const [selectedBook, setSelectedBook] = useState("John");
   const [selectedChapter, setSelectedChapter] = useState(1);
-  const [translation, setTranslation] = useState<Translation>("kjv");
+  const [translation, setTranslation] = useState("KJV");
   const [verses, setVerses] = useState<ChapterVerse[]>([]);
   const [headings, setHeadings] = useState<{ verse: number; heading: string }[]>([]);
   const [chapterRef, setChapterRef] = useState("");
@@ -76,8 +29,16 @@ export function BibleReader() {
   const bookData = BIBLE_BOOKS.find((b) => b.name === selectedBook);
   const maxChapters = bookData?.chapters ?? 1;
 
+  /** Derive a short display label for the current translation */
+  const translationLabel =
+    TRANSLATIONS_LIST.find((t) => t.id === translation)?.id.toUpperCase() ??
+    translation.toUpperCase();
+
+  const translationsByLang = getTranslationsByLanguage();
+  const languages = getLanguages();
+
   const fetchChapter = useCallback(
-    async (book: string, chapter: number, trans: Translation) => {
+    async (book: string, chapter: number, trans: string) => {
       setLoading(true);
       setError(null);
       try {
@@ -95,7 +56,7 @@ export function BibleReader() {
         const manualHeadings = SECTION_HEADINGS[key] || [];
 
         if (manualHeadings.length > 0) {
-          // Use manual headings — instant
+          // Use manual headings -- instant
           setVerses(data.verses);
           setHeadings(manualHeadings);
           setChapterRef(data.reference);
@@ -106,7 +67,7 @@ export function BibleReader() {
           const cached = localStorage.getItem(cacheKey);
 
           if (cached) {
-            // Use cached AI headings — instant
+            // Use cached AI headings -- instant
             setVerses(data.verses);
             setHeadings(JSON.parse(cached));
             setChapterRef(data.reference);
@@ -191,7 +152,7 @@ export function BibleReader() {
     BIBLE_BOOKS.findIndex((b) => b.name === selectedBook) <
       BIBLE_BOOKS.length - 1;
 
-  // Build verse groups with section headings inserted
+  // Build verse elements with section headings inserted
   function buildVerseElements() {
     if (verses.length === 0) return [];
 
@@ -275,11 +236,17 @@ export function BibleReader() {
 
         <select
           value={translation}
-          onChange={(e) => setTranslation(e.target.value as Translation)}
-          className="h-11 w-24 rounded-2xl border border-border/40 bg-card px-3 text-sm font-medium text-center focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+          onChange={(e) => setTranslation(e.target.value)}
+          className="h-11 w-36 rounded-2xl border border-border/40 bg-card px-3 text-sm font-medium text-center focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
         >
-          {(Object.keys(TRANSLATION_LABELS) as Translation[]).map((t) => (
-            <option key={t} value={t}>{TRANSLATION_LABELS[t]}</option>
+          {languages.map((lang) => (
+            <optgroup key={lang} label={lang}>
+              {translationsByLang[lang].map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.id.toUpperCase()} - {t.name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>
@@ -304,7 +271,7 @@ export function BibleReader() {
                 Chapter {selectedChapter}
                 <span className="mx-1.5 opacity-40">·</span>
                 <span className="uppercase tracking-wider text-[11px] font-medium">
-                  {TRANSLATION_LABELS[translation]}
+                  {translationLabel}
                 </span>
               </p>
             </div>

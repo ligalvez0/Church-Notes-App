@@ -1,8 +1,10 @@
 "use client";
 
 import { useUIStore, type Theme } from "@/stores/ui-store";
-import { Label } from "@/components/ui/label";
-import { TRANSLATIONS } from "@/types/bible";
+import {
+  getTranslationsByLanguage,
+  getLanguages,
+} from "@/types/bible";
 import { Sun, Moon, Lamp, BookOpen, Palette, Info } from "lucide-react";
 
 const themes: { value: Theme; label: string; icon: React.ReactNode; desc: string }[] = [
@@ -16,6 +18,9 @@ export default function SettingsPage() {
   const setTheme = useUIStore((s) => s.setTheme);
   const defaultTranslation = useUIStore((s) => s.defaultTranslation);
   const setDefaultTranslation = useUIStore((s) => s.setDefaultTranslation);
+
+  const translationsByLang = getTranslationsByLanguage();
+  const languages = getLanguages();
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6 space-y-6 animate-fade-in">
@@ -67,10 +72,14 @@ export default function SettingsPage() {
           onChange={(e) => setDefaultTranslation(e.target.value)}
           className="h-11 w-full rounded-2xl border border-border/40 bg-secondary/30 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
         >
-          {Object.entries(TRANSLATIONS).map(([key, name]) => (
-            <option key={key} value={key}>
-              {key.toUpperCase()} — {name}
-            </option>
+          {languages.map((lang) => (
+            <optgroup key={lang} label={lang}>
+              {translationsByLang[lang].map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.id.toUpperCase()} — {t.name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>
