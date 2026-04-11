@@ -59,6 +59,15 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
   // ── Russian ──────────────────────────────────────────────
   { id: "SYNOD", name: "Synodal Translation",          language: "Russian", apiSource: "bolls" },
 
+  // ── Ukrainian ────────────────────────────────────────────
+  { id: "UBIO",  name: "Ukrainian Bible (Ohienko)",    language: "Ukrainian", apiSource: "bolls" },
+  { id: "HOM",   name: "Homiletic Translation",        language: "Ukrainian", apiSource: "bolls" },
+  { id: "UTT",   name: "Turkoniak Translation",        language: "Ukrainian", apiSource: "bolls" },
+
+  // ── Arabic ───────────────────────────────────────────────
+  { id: "NAV",   name: "New Arabic Version",            language: "Arabic", apiSource: "bolls" },
+  { id: "SVD",   name: "Smith & Van Dyke",              language: "Arabic", apiSource: "bolls" },
+
   // ── Chinese ──────────────────────────────────────────────
   { id: "CUVS",  name: "Chinese Union Simplified",     language: "Chinese", apiSource: "bolls" },
 
