@@ -16,13 +16,15 @@ export interface ParsedReference {
   raw: string;
 }
 
-export type ApiSource = "bolls" | "bible-api";
+export type ApiSource = "bolls" | "bible-api" | "youversion";
 
 export interface TranslationInfo {
   id: string;
   name: string;
   language: string;
   apiSource: ApiSource;
+  /** Numeric Bible ID for YouVersion API (only used when apiSource is "youversion") */
+  youversionId?: number;
 }
 
 /**
@@ -60,6 +62,15 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
 
   // ── Latin ────────────────────────────────────────────────
   { id: "DRB",   name: "Douay-Rheims Bible",           language: "Latin/English", apiSource: "bolls" },
+
+  // ── YouVersion (requires YOUVERSION_APP_KEY + accepted licenses) ──
+  // IDs are discovered via /api/bible/discover — update youversionId after discovery
+  { id: "YV-NIV",  name: "New International Version",     language: "English", apiSource: "youversion", youversionId: 0 },
+  { id: "YV-NLT",  name: "New Living Translation",        language: "English", apiSource: "youversion", youversionId: 0 },
+  { id: "YV-AMP",  name: "Amplified Bible",               language: "English", apiSource: "youversion", youversionId: 0 },
+  { id: "YV-MSG",  name: "The Message",                   language: "English", apiSource: "youversion", youversionId: 0 },
+  { id: "YV-CSB",  name: "Christian Standard Bible",      language: "English", apiSource: "youversion", youversionId: 0 },
+  { id: "YV-NTV",  name: "Nueva Traduccion Viviente",     language: "Spanish", apiSource: "youversion", youversionId: 0 },
 ];
 
 /** Quick lookup helpers */

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { BibleVerse } from "@/types/bible";
 import { getTranslation } from "@/types/bible";
 import { BIBLE_BOOKS } from "@/lib/bible-data";
+import { bookNameToUSFM, fetchPassage } from "@/lib/youversion";
 
 /**
  * Map a canonical book name to its 1-based Bolls.life book number.
@@ -118,6 +119,47 @@ async function fetchVerseFromBibleApi(
   }
 }
 
+// ── YouVersion fetcher ────────────────────────────────────────────
+
+async function fetchVerseFromYouVersion(
+  youversionId: number,
+  translationLabel: string,
+  reference: string
+): Promise<BibleVerse | null> {
+  const parsed = parseReference(reference);
+  if (!parsed) return null;
+
+  const usfm = bookNameToUSFM(parsed.book);
+  if (!usfm) return null;
+
+  // Build USFM ref: JHN.3.16 or JHN.3.16-18
+  const usfmRef = parsed.verseEnd
+    ? `${usfm}.${parsed.chapter}.${parsed.verseStart}-${parsed.verseEnd}`
+    : `${usfm}.${parsed.chapter}.${parsed.verseStart}`;
+
+  const data = await fetchPassage(youversionId, usfmRef);
+  if (!data || !data.content) return null;
+
+  const text = data.content
+    .replace(/\[\d+\]\s*/g, "")   // strip [1] verse markers
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  const refStr = parsed.verseEnd
+    ? `${parsed.book} ${parsed.chapter}:${parsed.verseStart}-${parsed.verseEnd}`
+    : `${parsed.book} ${parsed.chapter}:${parsed.verseStart}`;
+
+  return {
+    reference: refStr,
+    text,
+    translation: translationLabel,
+    book: parsed.book,
+    chapter: parsed.chapter,
+    verseStart: parsed.verseStart,
+    verseEnd: parsed.verseEnd,
+  };
+}
+
 // ── Route handler ──────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
@@ -137,7 +179,9 @@ export async function GET(request: NextRequest) {
 
   let verse: BibleVerse | null = null;
 
-  if (apiSource === "bible-api") {
+  if (apiSource === "youversion" && info?.youversionId) {
+    verse = await fetchVerseFromYouVersion(info.youversionId, translationId.toUpperCase(), reference);
+  } else if (apiSource === "bible-api") {
     verse = await fetchVerseFromBibleApi(translationId, reference);
   } else {
     verse = await fetchVerseFromBolls(translationId, reference);

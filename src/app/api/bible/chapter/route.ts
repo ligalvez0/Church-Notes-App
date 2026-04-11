@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { ChapterVerse, ChapterResponse } from "@/types/bible";
 import { getTranslation } from "@/types/bible";
 import { BIBLE_BOOKS } from "@/lib/bible-data";
+import { bookNameToUSFM, fetchPassage } from "@/lib/youversion";
 
 /**
  * Map a canonical book name (e.g. "Genesis") to its 1-based book number
@@ -97,6 +98,63 @@ async function fetchChapterFromBibleApi(
   };
 }
 
+// ── YouVersion chapter fetcher ────────────────────────────────────
+
+async function fetchChapterFromYouVersion(
+  youversionId: number,
+  translationLabel: string,
+  bookName: string,
+  chapter: number
+): Promise<ChapterResponse | null> {
+  const usfm = bookNameToUSFM(bookName);
+  if (!usfm) return null;
+
+  // Fetch full chapter: GEN.1, JHN.3, etc.
+  const usfmRef = `${usfm}.${chapter}`;
+  const data = await fetchPassage(youversionId, usfmRef);
+  if (!data || !data.content) return null;
+
+  // YouVersion text format returns the whole chapter as a block.
+  // Split into verses by detecting verse number markers like [1], [2], etc.
+  const rawText = data.content;
+  const versePattern = /\[(\d+)\]\s*/g;
+  const verseParts: { verse: number; startIdx: number }[] = [];
+  let match;
+
+  while ((match = versePattern.exec(rawText)) !== null) {
+    verseParts.push({
+      verse: parseInt(match[1], 10),
+      startIdx: match.index + match[0].length,
+    });
+  }
+
+  if (verseParts.length === 0) {
+    // Fallback: return entire content as verse 1
+    return {
+      reference: `${bookName} ${chapter}`,
+      translation: translationLabel,
+      verses: [{ verse: 1, text: rawText.trim() }],
+    };
+  }
+
+  const verses: ChapterVerse[] = verseParts.map((vp, i) => {
+    const endIdx =
+      i < verseParts.length - 1 ? verseParts[i + 1].startIdx - `[${verseParts[i + 1].verse}] `.length : rawText.length;
+    // Find the start of the next [N] marker to get the end of this verse's text
+    const nextMarkerMatch = i < verseParts.length - 1
+      ? rawText.lastIndexOf(`[${verseParts[i + 1].verse}]`, verseParts[i + 1].startIdx)
+      : rawText.length;
+    const text = rawText.slice(vp.startIdx, nextMarkerMatch).replace(/\s{2,}/g, " ").trim();
+    return { verse: vp.verse, text };
+  });
+
+  return {
+    reference: `${bookName} ${chapter}`,
+    translation: translationLabel,
+    verses,
+  };
+}
+
 // ── Route handler ──────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
@@ -126,7 +184,9 @@ export async function GET(request: NextRequest) {
   try {
     let result: ChapterResponse | null = null;
 
-    if (apiSource === "bible-api") {
+    if (apiSource === "youversion" && info?.youversionId) {
+      result = await fetchChapterFromYouVersion(info.youversionId, translationId.toUpperCase(), book, chapterNum);
+    } else if (apiSource === "bible-api") {
       result = await fetchChapterFromBibleApi(translationId, book, chapterNum);
     } else {
       result = await fetchChapterFromBolls(translationId, book, chapterNum);
