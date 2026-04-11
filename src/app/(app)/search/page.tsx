@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Loader2, Sparkles, Brain } from "lucide-react";
+import { Search, Loader2, Cross, Brain } from "lucide-react";
 import { NoteCard } from "@/components/notes/note-card";
 import { createClient } from "@/lib/supabase/client";
 import type { SermonNote } from "@/types/note";
@@ -121,7 +121,7 @@ export default function SearchPage() {
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
-                  <Sparkles className="h-3 w-3 text-white" />
+                  <Cross className="h-3 w-3 text-white" />
                 </div>
                 <span className="text-xs font-semibold text-primary">Answer</span>
               </div>
@@ -150,7 +150,7 @@ export default function SearchPage() {
       ) : (
         <div className="py-16 text-center animate-slide-up">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl opacity-15" style={{ background: "var(--gradient-primary)" }}>
-            <Sparkles className="h-8 w-8 text-primary" />
+            <Cross className="h-8 w-8 text-primary" />
           </div>
           <p className="text-muted-foreground">Search across all your sermon notes</p>
           <p className="text-xs text-muted-foreground/60 mt-1">Try asking questions like &quot;What did we learn about grace?&quot;</p>
