@@ -62,7 +62,13 @@ async function fetchVerseFromBolls(
   if (matchingVerses.length === 0) return null;
 
   const text = matchingVerses
-    .map((v) => v.text.replace(/<[^>]*>/g, "").trim())
+    .map((v) =>
+      v.text
+        .replace(/<[^>]*>/g, "")
+        .replace(/(?<=[a-zA-Z,;:.!?'"])\d{2,5}/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim()
+    )
     .join(" ");
 
   const refStr = parsed.verseEnd

@@ -34,18 +34,16 @@ export interface TranslationInfo {
  */
 export const TRANSLATIONS_LIST: TranslationInfo[] = [
   // ── English ──────────────────────────────────────────────
-  { id: "KJV",   name: "King James Version",           language: "English", apiSource: "bolls" },
+  { id: "kjv",   name: "King James Version",           language: "English", apiSource: "bible-api" },
   { id: "NKJV",  name: "New King James Version",       language: "English", apiSource: "bolls" },
   { id: "asv",   name: "American Standard Version",     language: "English", apiSource: "bible-api" },
-  { id: "WEB",   name: "World English Bible",           language: "English", apiSource: "bolls" },
+  { id: "web",   name: "World English Bible",           language: "English", apiSource: "bible-api" },
   { id: "YLT",   name: "Young's Literal Translation",   language: "English", apiSource: "bolls" },
   { id: "NET",   name: "NET Bible",                     language: "English", apiSource: "bolls" },
   { id: "BSB",   name: "Berean Standard Bible",         language: "English", apiSource: "bolls" },
-  { id: "LSB",   name: "Legacy Standard Bible",         language: "English", apiSource: "bolls" },
   { id: "NASB",  name: "New American Standard Bible",   language: "English", apiSource: "bolls" },
 
   // ── Spanish ──────────────────────────────────────────────
-  { id: "RVR09", name: "Reina-Valera 1909",             language: "Spanish", apiSource: "bolls" },
   { id: "RVR60", name: "Reina-Valera 1960",             language: "Spanish", apiSource: "bolls" },
   { id: "LBLA",  name: "La Biblia de las Americas",     language: "Spanish", apiSource: "bolls" },
   { id: "NVI",   name: "Nueva Version Internacional",   language: "Spanish", apiSource: "bolls" },

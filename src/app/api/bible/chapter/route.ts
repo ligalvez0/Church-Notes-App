@@ -25,6 +25,20 @@ interface BollsVerse {
   book?: number;
 }
 
+/**
+ * Clean verse text from Bolls.life API:
+ * 1. Strip HTML tags
+ * 2. Strip Strong's concordance numbers (digits immediately after words)
+ * 3. Clean up extra whitespace
+ */
+function cleanBollsText(text: string): string {
+  return text
+    .replace(/<[^>]*>/g, "")           // strip HTML tags
+    .replace(/(?<=[a-zA-Z,;:.!?'"])\d{2,5}/g, "") // strip Strong's numbers after words
+    .replace(/\s{2,}/g, " ")           // collapse multiple spaces
+    .trim();
+}
+
 async function fetchChapterFromBolls(
   translationCode: string,
   bookName: string,
@@ -42,7 +56,7 @@ async function fetchChapterFromBolls(
 
   const verses: ChapterVerse[] = data.map((v) => ({
     verse: v.verse,
-    text: v.text.replace(/<[^>]*>/g, "").trim(), // strip any HTML tags
+    text: cleanBollsText(v.text),
   }));
 
   return {
