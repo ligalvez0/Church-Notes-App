@@ -57,12 +57,12 @@ export function BibleReader() {
         const transLang = transInfo?.language ?? "English";
         const isEnglish = transLang === "English" || transLang === "Latin/English";
 
-        // Check for manual headings (only for English translations)
+        // Check for manual headings (available for many chapters)
         const key = `${book} ${chapter}`;
-        const manualHeadings = isEnglish ? (SECTION_HEADINGS[key] || []) : [];
+        const manualHeadings = SECTION_HEADINGS[key] || [];
 
-        if (manualHeadings.length > 0) {
-          // Use manual headings -- instant
+        if (isEnglish && manualHeadings.length > 0) {
+          // English + manual headings — use directly, instant
           setVerses(data.verses);
           setHeadings(manualHeadings);
           setChapterRef(data.reference);
@@ -79,13 +79,13 @@ export function BibleReader() {
             setChapterRef(data.reference);
             setLoading(false);
           } else {
-            // Show verses immediately, then fetch AI headings
+            // Show verses immediately with manual headings as fallback
             setVerses(data.verses);
-            setHeadings([]);
+            setHeadings(manualHeadings);
             setChapterRef(data.reference);
             setLoading(false);
 
-            // Fetch AI headings in background (pass language for non-English)
+            // Try AI headings in background (for localized headings)
             const versesText = data.verses
               .map((v) => `${v.verse}. ${v.text}`)
               .join("\n");

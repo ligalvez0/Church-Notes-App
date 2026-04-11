@@ -14,17 +14,21 @@ export async function GET(request: NextRequest) {
 
   const isEnglish = language === "English" || language === "Latin/English";
 
-  // Check manual headings first (only for English)
+  // Manual headings lookup
   const key = `${book} ${chapter}`;
-  if (isEnglish && SECTION_HEADINGS[key]) {
-    return NextResponse.json({ headings: SECTION_HEADINGS[key], source: "manual" });
+  const manualHeadings = SECTION_HEADINGS[key] || [];
+
+  // For English, use manual headings directly if available
+  if (isEnglish && manualHeadings.length > 0) {
+    return NextResponse.json({ headings: manualHeadings, source: "manual" });
   }
 
-  // No verses text provided — can't generate
+  // No verses text provided — return manual headings as fallback
   if (!verseTexts) {
-    return NextResponse.json({ headings: [], source: "none" });
+    return NextResponse.json({ headings: manualHeadings, source: manualHeadings.length > 0 ? "manual" : "none" });
   }
 
+  // Try AI-generated headings (requires ANTHROPIC_API_KEY)
   try {
     const message = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
@@ -50,13 +54,15 @@ Return ONLY the JSON array, no other text.`,
     const text = message.content[0].type === "text" ? message.content[0].text : "";
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      return NextResponse.json({ headings: [], source: "ai_error" });
+      // AI failed to parse — fall back to manual English headings
+      return NextResponse.json({ headings: manualHeadings, source: manualHeadings.length > 0 ? "manual_fallback" : "ai_error" });
     }
 
     const headings = JSON.parse(jsonMatch[0]);
     return NextResponse.json({ headings, source: "ai" });
   } catch (err) {
     console.error("AI headings error:", err);
-    return NextResponse.json({ headings: [], source: "ai_error" });
+    // AI unavailable — fall back to manual English headings
+    return NextResponse.json({ headings: manualHeadings, source: manualHeadings.length > 0 ? "manual_fallback" : "ai_error" });
   }
 }
