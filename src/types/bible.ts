@@ -63,6 +63,14 @@ export const TRANSLATIONS_LIST: TranslationInfo[] = [
   { id: "UBIO",  name: "Ukrainian Bible (Ohienko)",    language: "Ukrainian", apiSource: "bolls" },
   { id: "HOM",   name: "Homiletic Translation",        language: "Ukrainian", apiSource: "bolls" },
   { id: "UTT",   name: "Turkoniak Translation",        language: "Ukrainian", apiSource: "bolls" },
+  { id: "CUV23", name: "Contemporary Ukrainian 2023",  language: "Ukrainian", apiSource: "bolls" },
+
+  // ── French ───────────────────────────────────────────────
+  { id: "NBS",     name: "Nouvelle Bible Segond",        language: "French", apiSource: "bolls" },
+  { id: "FRDBY",   name: "French Darby",                 language: "French", apiSource: "bolls" },
+  { id: "FRLSG",   name: "French Louis Segond",          language: "French", apiSource: "bolls" },
+  { id: "FRPDV17", name: "Parole de Vie 2017",           language: "French", apiSource: "bolls" },
+  { id: "BDS",     name: "Bible du Semeur",              language: "French", apiSource: "bolls" },
 
   // ── Arabic ───────────────────────────────────────────────
   { id: "NAV",   name: "New Arabic Version",            language: "Arabic", apiSource: "bolls" },
