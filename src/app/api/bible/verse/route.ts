@@ -208,21 +208,26 @@ export async function GET(request: NextRequest) {
   const info = getTranslation(translationId);
   const apiSource = info?.apiSource ?? "bolls";
 
-  let verse: BibleVerse | null = null;
+  try {
+    let verse: BibleVerse | null = null;
 
-  if (apiSource === "api-bible" && info?.apiBibleId) {
-    verse = await fetchVerseFromApiBible(info.apiBibleId, translationId.toUpperCase(), reference);
-  } else if (apiSource === "youversion" && info?.youversionId) {
-    verse = await fetchVerseFromYouVersion(info.youversionId, translationId.toUpperCase(), reference);
-  } else if (apiSource === "bible-api") {
-    verse = await fetchVerseFromBibleApi(translationId, reference);
-  } else {
-    verse = await fetchVerseFromBolls(translationId, reference);
+    if (apiSource === "api-bible" && info?.apiBibleId) {
+      verse = await fetchVerseFromApiBible(info.apiBibleId, translationId.toUpperCase(), reference);
+    } else if (apiSource === "youversion" && info?.youversionId) {
+      verse = await fetchVerseFromYouVersion(info.youversionId, translationId.toUpperCase(), reference);
+    } else if (apiSource === "bible-api") {
+      verse = await fetchVerseFromBibleApi(translationId, reference);
+    } else {
+      verse = await fetchVerseFromBolls(translationId, reference);
+    }
+
+    if (!verse) {
+      return NextResponse.json({ error: "Verse not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(verse);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: "Failed to fetch verse", detail: message }, { status: 500 });
   }
-
-  if (!verse) {
-    return NextResponse.json({ error: "Verse not found" }, { status: 404 });
-  }
-
-  return NextResponse.json(verse);
 }

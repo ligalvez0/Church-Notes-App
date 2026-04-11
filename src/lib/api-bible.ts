@@ -73,11 +73,16 @@ export async function fetchVerse(
 
   const url = `${AB_BASE}/bibles/${bibleId}/passages/${encodeURIComponent(passageId)}?content-type=text&include-notes=false&include-titles=false&include-chapter-numbers=false&include-verse-numbers=false`;
 
+  console.log("[api-bible] fetching verse:", url);
   const res = await fetch(url, {
     headers: abHeaders(),
     next: { revalidate: 86400 },
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    console.error(`[api-bible] verse fetch failed (${res.status}):`, errText);
+    return null;
+  }
 
   const json: ABVerseResponse = await res.json();
   if (!json.data?.content) return null;
@@ -101,11 +106,16 @@ export async function fetchChapter(
   const chapterId = `${usfm}.${chapter}`;
   const url = `${AB_BASE}/bibles/${bibleId}/chapters/${encodeURIComponent(chapterId)}?content-type=text&include-notes=false&include-titles=false&include-chapter-numbers=false&include-verse-numbers=true`;
 
+  console.log("[api-bible] fetching chapter:", url);
   const res = await fetch(url, {
     headers: abHeaders(),
     next: { revalidate: 86400 },
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    console.error(`[api-bible] chapter fetch failed (${res.status}):`, errText);
+    return null;
+  }
 
   const json: ABChapterResponse = await res.json();
   if (!json.data?.content) return null;
