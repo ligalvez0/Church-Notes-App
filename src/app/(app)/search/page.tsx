@@ -90,7 +90,7 @@ export default function SearchPage() {
             }`}
           >
             <Brain className="h-3 w-3" />
-            AI Search {useAI ? "ON" : "OFF"}
+            Smart Search {useAI ? "ON" : "OFF"}
           </button>
 
           <button
@@ -111,7 +111,7 @@ export default function SearchPage() {
             <Loader2 className="h-5 w-5 animate-spin text-white" />
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            {useAI ? "AI is searching your notes..." : "Searching..."}
+            {useAI ? "Searching your notes..." : "Searching..."}
           </p>
         </div>
       ) : searched ? (
@@ -123,7 +123,7 @@ export default function SearchPage() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
                   <Sparkles className="h-3 w-3 text-white" />
                 </div>
-                <span className="text-xs font-semibold text-primary">AI Answer</span>
+                <span className="text-xs font-semibold text-primary">Answer</span>
               </div>
               <p className="text-sm leading-relaxed">{aiAnswer}</p>
             </div>
